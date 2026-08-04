@@ -1,0 +1,15 @@
+{
+  "name": "Hisaabi — AI Expense Tracker",
+  "short_name": "Hisaabi",
+  "description": "Chat your expenses. Keep your data. A private, local-first AI expense tracker.",
+  "start_url": "/app",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0D9488",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
