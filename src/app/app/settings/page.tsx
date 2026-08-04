@@ -13,7 +13,11 @@ import {
   wipeAll,
 } from "@/lib/backup";
 
-type FormState = Pick<Settings, "provider" | "model" | "apiKey" | "ollamaUrl">;
+type FormState = Pick<Settings, "provider" | "model" | "apiKey" | "ollamaUrl" | "baseUrl">;
+
+function toFormState(s: Settings): FormState {
+  return { provider: s.provider, model: s.model, apiKey: s.apiKey, ollamaUrl: s.ollamaUrl, baseUrl: s.baseUrl };
+}
 
 export default function SettingsPage() {
   const [form, setForm] = useState<FormState | null>(null);
@@ -29,7 +33,7 @@ export default function SettingsPage() {
   useEffect(() => {
     void (async () => {
       const [s, p] = await Promise.all([getSettings(), getProfile()]);
-      setForm({ provider: s.provider, model: s.model, apiKey: s.apiKey, ollamaUrl: s.ollamaUrl });
+      setForm(toFormState(s));
       setCurrencyState(p.currency);
       if (navigator.storage?.persisted) setPersisted(await navigator.storage.persisted());
     })();
@@ -95,7 +99,7 @@ export default function SettingsPage() {
       await importJson(await file.text());
       alert("Backup imported.");
       const s = await getSettings();
-      setForm({ provider: s.provider, model: s.model, apiKey: s.apiKey, ollamaUrl: s.ollamaUrl });
+      setForm(toFormState(s));
     } catch (e) {
       alert(e instanceof Error ? e.message : "Import failed.");
     } finally {
@@ -109,7 +113,7 @@ export default function SettingsPage() {
     setConfirmWipe(false);
     setBusy(null);
     const s = await getSettings();
-    setForm({ provider: s.provider, model: s.model, apiKey: s.apiKey, ollamaUrl: s.ollamaUrl });
+    setForm(toFormState(s));
     setCurrencyState((await getProfile()).currency);
   }
 
@@ -160,47 +164,74 @@ export default function SettingsPage() {
           </div>
 
           {meta.needsKey ? (
-            <Field label="API key">
-              <div className="flex gap-2">
-                <input
-                  type={showKey ? "text" : "password"}
-                  value={form.apiKey}
-                  onChange={(e) => patch({ apiKey: e.target.value })}
-                  placeholder={meta.keyHint}
-                  autoComplete="off"
-                  className={`${inputCls} flex-1 font-mono`}
-                />
-                <button type="button" onClick={() => setShowKey((v) => !v)} className={btnGhost}>
-                  {showKey ? "Hide" : "Show"}
-                </button>
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <button type="button" onClick={onTest} disabled={testing || !form.apiKey} className={btnGhost}>
-                  {testing ? "Testing…" : "Test key"}
-                </button>
-                <button type="button" onClick={onRemoveKey} disabled={!form.apiKey} className={btnGhost}>
-                  Remove key
-                </button>
-                {meta.keyUrl && (
-                  <a
-                    href={meta.keyUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-xs font-medium text-brand underline underline-offset-2"
+            <>
+              <Field label="API key">
+                <div className="flex gap-2">
+                  <input
+                    type={showKey ? "text" : "password"}
+                    value={form.apiKey}
+                    onChange={(e) => patch({ apiKey: e.target.value })}
+                    placeholder={meta.keyHint}
+                    autoComplete="off"
+                    className={`${inputCls} flex-1 font-mono`}
+                  />
+                  <button type="button" onClick={() => setShowKey((v) => !v)} className={btnGhost}>
+                    {showKey ? "Hide" : "Show"}
+                  </button>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={onTest}
+                    disabled={testing || (!form.apiKey && !form.baseUrl)}
+                    className={btnGhost}
                   >
-                    Get a key
-                  </a>
-                )}
-              </div>
-              <p className="text-xs text-slate-500">
-                Tip: create a scoped/limited key where your provider supports it.
-              </p>
-              {testResult && (
-                <p className={`text-sm font-medium ${testResult.ok ? "text-brand-600" : "text-red-600"}`}>
-                  {testResult.message}
+                    {testing ? "Testing…" : "Test key"}
+                  </button>
+                  <button type="button" onClick={onRemoveKey} disabled={!form.apiKey} className={btnGhost}>
+                    Remove key
+                  </button>
+                  {meta.keyUrl && (
+                    <a
+                      href={meta.keyUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-xs font-medium text-brand underline underline-offset-2"
+                    >
+                      Get a key
+                    </a>
+                  )}
+                </div>
+                <p className="text-xs text-slate-500">
+                  Tip: create a scoped/limited key where your provider supports it.
                 </p>
+                {testResult && (
+                  <p className={`text-sm font-medium ${testResult.ok ? "text-brand-600" : "text-red-600"}`}>
+                    {testResult.message}
+                  </p>
+                )}
+              </Field>
+
+              {form.provider === "openai" && (
+                <Field label="Base URL (optional)">
+                  <input
+                    value={form.baseUrl ?? ""}
+                    onChange={(e) =>
+                      patch({
+                        baseUrl: e.target.value,
+                        model: form.model === "gpt-4o-mini" && e.target.value.trim() ? "auto" : form.model,
+                      })
+                    }
+                    placeholder="https://api.openai.com/v1"
+                    className={`${inputCls} font-mono`}
+                  />
+                  <p className="text-xs text-slate-500">
+                    Point at an OpenAI-compatible proxy or gateway (OpenRouter, LiteLLM, Omniroute, etc.) instead of
+                    OpenAI directly. Leave blank to use OpenAI.
+                  </p>
+                </Field>
               )}
-            </Field>
+            </>
           ) : (
             <Field label="Ollama URL">
               <input

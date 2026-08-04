@@ -16,7 +16,7 @@ export const PROVIDERS: ProviderMeta[] = [
     label: "OpenAI",
     needsKey: true,
     defaultModel: "gpt-4o-mini",
-    modelSuggestions: ["gpt-4o-mini", "gpt-4o", "gpt-4.1-mini", "gpt-4.1"],
+    modelSuggestions: ["auto", "gpt-4o-mini", "gpt-4o", "gpt-4.1-mini", "gpt-4.1"],
     keyHint: "sk-…",
     keyUrl: "https://platform.openai.com/api-keys",
   },
@@ -62,12 +62,13 @@ export interface TestResult {
 export async function testConnection(s: Settings): Promise<TestResult> {
   try {
     if (s.provider === "openai") {
-      const r = await fetch("https://api.openai.com/v1/models", {
-        headers: { Authorization: `Bearer ${s.apiKey}` },
+      const base = (s.baseUrl || "https://api.openai.com/v1").replace(/\/+$/, "");
+      const r = await fetch(`${base}/models`, {
+        headers: s.apiKey ? { Authorization: `Bearer ${s.apiKey}` } : {},
       });
       return r.ok
-        ? { ok: true, message: "Connected to OpenAI." }
-        : { ok: false, message: `OpenAI rejected the key (${r.status}).` };
+        ? { ok: true, message: s.baseUrl ? "Connected." : "Connected to OpenAI." }
+        : { ok: false, message: `Rejected (${r.status}).` };
     }
 
     if (s.provider === "anthropic") {

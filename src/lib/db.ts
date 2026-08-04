@@ -66,6 +66,7 @@ export interface Settings {
   apiKey: string;
   model: string;
   ollamaUrl?: string;
+  baseUrl?: string; // OpenAI provider only: override for a proxy/gateway (OpenRouter, LiteLLM, etc.)
 }
 
 export const PROFILE_ID = 1;
