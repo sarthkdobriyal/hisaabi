@@ -44,6 +44,11 @@ export function prevMonth(monthKey: string): string {
   return m === 1 ? `${y - 1}-12` : `${y}-${String(m - 1).padStart(2, "0")}`;
 }
 
+export function nextMonth(monthKey: string): string {
+  const [y, m] = monthKey.split("-").map(Number);
+  return m === 12 ? `${y + 1}-01` : `${y}-${String(m + 1).padStart(2, "0")}`;
+}
+
 export function daysInMonth(monthKey: string): number {
   const [y, m] = monthKey.split("-").map(Number);
   return new Date(y, m, 0).getDate(); // day 0 of next month = last day of this one

@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { Provider, Settings } from "@/lib/db";
+import type { Profile, Provider, RecurringBill, Settings } from "@/lib/db";
 import { PROVIDERS, providerMeta, testConnection, type TestResult } from "@/lib/providers";
 import { CURRENCIES } from "@/lib/currencies";
-import { getProfile, getSettings, saveSettings, setCurrency } from "@/lib/store";
+import { DEFAULT_CATEGORIES } from "@/lib/categories";
+import { getProfile, getSettings, saveProfile, saveSettings, setCurrency } from "@/lib/store";
 import {
   download,
   exportAllJson,
@@ -14,18 +15,44 @@ import {
 } from "@/lib/backup";
 
 type FormState = Pick<Settings, "provider" | "model" | "apiKey" | "ollamaUrl" | "baseUrl">;
+type ProfileForm = Pick<Profile, "salary" | "salaryDate" | "budgetGoals" | "recurringBills" | "customCategories">;
 
 function toFormState(s: Settings): FormState {
   return { provider: s.provider, model: s.model, apiKey: s.apiKey, ollamaUrl: s.ollamaUrl, baseUrl: s.baseUrl };
 }
 
+function toProfileForm(p: Profile): ProfileForm {
+  return {
+    salary: p.salary,
+    salaryDate: p.salaryDate,
+    budgetGoals: p.budgetGoals,
+    recurringBills: p.recurringBills,
+    customCategories: p.customCategories,
+  };
+}
+
+function cleanProfileForm(p: ProfileForm): ProfileForm {
+  return {
+    salary: p.salary && p.salary > 0 ? p.salary : undefined,
+    salaryDate: p.salaryDate && p.salaryDate >= 1 && p.salaryDate <= 31 ? p.salaryDate : undefined,
+    budgetGoals: p.budgetGoals.filter((g) => g.limit > 0),
+    recurringBills: p.recurringBills
+      .map((b) => ({ ...b, name: b.name.trim() }))
+      .filter((b) => b.name && b.amount > 0 && b.dayOfMonth >= 1 && b.dayOfMonth <= 31),
+    customCategories: [...new Set(p.customCategories.map((c) => c.trim()).filter(Boolean))],
+  };
+}
+
 export default function SettingsPage() {
   const [form, setForm] = useState<FormState | null>(null);
+  const [profileForm, setProfileForm] = useState<ProfileForm | null>(null);
   const [currency, setCurrencyState] = useState("INR");
+  const [newCategory, setNewCategory] = useState("");
   const [showKey, setShowKey] = useState(false);
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState<TestResult | null>(null);
   const [saved, setSaved] = useState(false);
+  const [profileSaved, setProfileSaved] = useState(false);
   const [persisted, setPersisted] = useState<boolean | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [confirmWipe, setConfirmWipe] = useState(false);
@@ -34,21 +61,28 @@ export default function SettingsPage() {
     void (async () => {
       const [s, p] = await Promise.all([getSettings(), getProfile()]);
       setForm(toFormState(s));
+      setProfileForm(toProfileForm(p));
       setCurrencyState(p.currency);
       if (navigator.storage?.persisted) setPersisted(await navigator.storage.persisted());
     })();
   }, []);
 
-  if (!form) {
+  if (!form || !profileForm) {
     return <div className="py-16 text-center text-sm text-slate-500">Loading settings…</div>;
   }
 
   const meta = providerMeta(form.provider);
+  const categories = [...DEFAULT_CATEGORIES, ...profileForm.customCategories];
 
   function patch(next: Partial<FormState>) {
     setForm((f) => (f ? { ...f, ...next } : f));
     setSaved(false);
     setTestResult(null);
+  }
+
+  function patchProfile(next: Partial<ProfileForm>) {
+    setProfileForm((p) => (p ? { ...p, ...next } : p));
+    setProfileSaved(false);
   }
 
   function onProviderChange(provider: Provider) {
@@ -60,6 +94,33 @@ export default function SettingsPage() {
     if (!form) return;
     await saveSettings(form);
     setSaved(true);
+  }
+
+  async function onSaveProfile() {
+    if (!profileForm) return;
+    const savedProfile = await saveProfile(cleanProfileForm(profileForm));
+    setProfileForm(toProfileForm(savedProfile));
+    setProfileSaved(true);
+  }
+
+  function setBudget(category: string, raw: string) {
+    if (!profileForm) return;
+    const limit = Number(raw);
+    const rest = profileForm.budgetGoals.filter((g) => g.category !== category);
+    patchProfile({ budgetGoals: limit > 0 ? [...rest, { category, limit }] : rest });
+  }
+
+  function setBill(index: number, patch: Partial<RecurringBill>) {
+    if (!profileForm) return;
+    patchProfile({ recurringBills: profileForm.recurringBills.map((b, i) => (i === index ? { ...b, ...patch } : b)) });
+  }
+
+  function addCategory() {
+    if (!profileForm) return;
+    const category = newCategory.trim();
+    if (!category || categories.includes(category)) return;
+    patchProfile({ customCategories: [...profileForm.customCategories, category] });
+    setNewCategory("");
   }
 
   async function onTest() {
@@ -98,8 +159,9 @@ export default function SettingsPage() {
     try {
       await importJson(await file.text());
       alert("Backup imported.");
-      const s = await getSettings();
+      const [s, p] = await Promise.all([getSettings(), getProfile()]);
       setForm(toFormState(s));
+      setProfileForm(toProfileForm(p));
     } catch (e) {
       alert(e instanceof Error ? e.message : "Import failed.");
     } finally {
@@ -112,9 +174,10 @@ export default function SettingsPage() {
     await wipeAll();
     setConfirmWipe(false);
     setBusy(null);
-    const s = await getSettings();
+    const [s, p] = await Promise.all([getSettings(), getProfile()]);
     setForm(toFormState(s));
-    setCurrencyState((await getProfile()).currency);
+    setProfileForm(toProfileForm(p));
+    setCurrencyState(p.currency);
   }
 
   return (
@@ -260,17 +323,159 @@ export default function SettingsPage() {
         </div>
       </Section>
 
-      {/* Currency */}
-      <Section title="Currency" subtitle="Used to format amounts across the app.">
-        <Field label="Default currency" className="max-w-xs">
-          <select value={currency} onChange={(e) => onCurrencyChange(e.target.value)} className={inputCls}>
-            {CURRENCIES.map((c) => (
-              <option key={c.code} value={c.code}>
-                {c.label} ({c.code})
-              </option>
-            ))}
-          </select>
-        </Field>
+      {/* Profile & budget */}
+      <Section title="Profile & budget" subtitle="Review what chat saved, then tune budgets for the dashboard and AI.">
+        <div className="grid gap-6">
+          <div className="grid gap-5 sm:grid-cols-3">
+            <Field label="Default currency">
+              <select value={currency} onChange={(e) => onCurrencyChange(e.target.value)} className={inputCls}>
+                {CURRENCIES.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.label} ({c.code})
+                  </option>
+                ))}
+              </select>
+            </Field>
+            <Field label="Monthly salary">
+              <input
+                type="number"
+                min="0"
+                value={profileForm.salary ?? ""}
+                onChange={(e) => patchProfile({ salary: e.target.value ? Number(e.target.value) : undefined })}
+                placeholder="50000"
+                className={inputCls}
+              />
+            </Field>
+            <Field label="Salary day">
+              <input
+                type="number"
+                min="1"
+                max="31"
+                value={profileForm.salaryDate ?? ""}
+                onChange={(e) => patchProfile({ salaryDate: e.target.value ? Number(e.target.value) : undefined })}
+                placeholder="1"
+                className={inputCls}
+              />
+            </Field>
+          </div>
+
+          <div className="grid gap-3">
+            <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">Monthly category budgets</h3>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {categories.map((category) => (
+                <Field key={category} label={category}>
+                  <input
+                    type="number"
+                    min="0"
+                    value={profileForm.budgetGoals.find((g) => g.category === category)?.limit ?? ""}
+                    onChange={(e) => setBudget(category, e.target.value)}
+                    placeholder="No limit"
+                    className={inputCls}
+                  />
+                </Field>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid gap-3">
+            <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">Custom categories</h3>
+            <div className="flex gap-2">
+              <input
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value)}
+                placeholder="e.g. Pets"
+                className={inputCls}
+              />
+              <button type="button" onClick={addCategory} className={btnGhost}>
+                Add
+              </button>
+            </div>
+            {!!profileForm.customCategories.length && (
+              <div className="flex flex-wrap gap-2">
+                {profileForm.customCategories.map((category) => (
+                  <button
+                    key={category}
+                    type="button"
+                    onClick={() =>
+                      patchProfile({
+                        customCategories: profileForm.customCategories.filter((c) => c !== category),
+                        budgetGoals: profileForm.budgetGoals.filter((g) => g.category !== category),
+                      })
+                    }
+                    className="rounded-full border border-slate-300 px-3 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-900"
+                  >
+                    {category} ×
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="grid gap-3">
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">Recurring bills</h3>
+              <button
+                type="button"
+                onClick={() =>
+                  patchProfile({ recurringBills: [...profileForm.recurringBills, { name: "", amount: 0, dayOfMonth: 1 }] })
+                }
+                className={btnGhost}
+              >
+                Add bill
+              </button>
+            </div>
+            <div className="grid gap-3">
+              {profileForm.recurringBills.map((bill, i) => (
+                <div key={i} className="grid gap-3 rounded-xl border border-slate-200 p-3 dark:border-slate-800 sm:grid-cols-[1fr_8rem_7rem_auto]">
+                  <input
+                    value={bill.name}
+                    onChange={(e) => setBill(i, { name: e.target.value })}
+                    placeholder="Rent"
+                    className={inputCls}
+                  />
+                  <input
+                    type="number"
+                    min="0"
+                    value={bill.amount || ""}
+                    onChange={(e) => setBill(i, { amount: Number(e.target.value) })}
+                    placeholder="Amount"
+                    className={inputCls}
+                  />
+                  <input
+                    type="number"
+                    min="1"
+                    max="31"
+                    value={bill.dayOfMonth || ""}
+                    onChange={(e) => setBill(i, { dayOfMonth: Number(e.target.value) })}
+                    placeholder="Day"
+                    className={inputCls}
+                  />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      patchProfile({ recurringBills: profileForm.recurringBills.filter((_, index) => index !== i) })
+                    }
+                    className={btnGhost}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+              {!profileForm.recurringBills.length && (
+                <p className="rounded-xl border border-dashed border-slate-300 p-4 text-center text-sm text-slate-500 dark:border-slate-700">
+                  No recurring bills yet.
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 border-t border-slate-100 pt-5 dark:border-slate-800">
+            <button type="button" onClick={onSaveProfile} className={btnPrimary}>
+              Save profile
+            </button>
+            {profileSaved && <span className="text-sm font-medium text-brand-600">Saved.</span>}
+          </div>
+        </div>
       </Section>
 
       {/* Storage & backup */}
