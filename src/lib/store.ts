@@ -28,3 +28,15 @@ export async function getSettings(): Promise<Settings> {
   await db.settings.put(DEFAULT_SETTINGS);
   return DEFAULT_SETTINGS;
 }
+
+export async function saveSettings(patch: Partial<Settings>): Promise<Settings> {
+  const current = await getSettings();
+  const next = { ...current, ...patch, id: SETTINGS_ID };
+  await db.settings.put(next);
+  return next;
+}
+
+export async function setCurrency(currency: string): Promise<void> {
+  const current = await getProfile();
+  await db.profile.put({ ...current, currency, id: PROFILE_ID });
+}
