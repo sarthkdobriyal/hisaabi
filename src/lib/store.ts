@@ -36,7 +36,13 @@ export async function saveSettings(patch: Partial<Settings>): Promise<Settings> 
   return next;
 }
 
-export async function setCurrency(currency: string): Promise<void> {
+export async function saveProfile(patch: Partial<Profile>): Promise<Profile> {
   const current = await getProfile();
-  await db.profile.put({ ...current, currency, id: PROFILE_ID });
+  const next = { ...current, ...patch, id: PROFILE_ID };
+  await db.profile.put(next);
+  return next;
+}
+
+export async function setCurrency(currency: string): Promise<void> {
+  await saveProfile({ currency });
 }
