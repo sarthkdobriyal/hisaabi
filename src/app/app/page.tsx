@@ -6,6 +6,8 @@ import { db } from "@/lib/db";
 import { runTool } from "@/lib/tools";
 import { runChatTurn, type ToolOutcome } from "@/lib/chat";
 import { DataResidencyBadge } from "@/components/DataResidencyBadge";
+import SetupScreen, { needsSetup } from "@/components/SetupScreen";
+import { readSettings } from "@/lib/store";
 
 interface Card extends ToolOutcome {
   undone?: boolean;
@@ -13,6 +15,7 @@ interface Card extends ToolOutcome {
 
 export default function ChatPage() {
   const messages = useLiveQuery(() => db.chatMessages.orderBy("createdAt").toArray(), [], []);
+  const settings = useLiveQuery(() => readSettings(), [], null);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -22,6 +25,11 @@ export default function ChatPage() {
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, sending, cards]);
+
+  if (settings === null) {
+    return <div className="py-16 text-center text-sm text-slate-500">Loading…</div>;
+  }
+  if (needsSetup(settings)) return <SetupScreen />;
 
   async function send() {
     const text = input.trim();

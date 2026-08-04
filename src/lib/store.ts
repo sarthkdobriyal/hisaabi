@@ -22,11 +22,21 @@ export async function getProfile(): Promise<Profile> {
   return DEFAULT_PROFILE;
 }
 
+// Read-only variant for useLiveQuery, which forbids writes inside the query.
+export async function readProfile(): Promise<Profile> {
+  return (await db.profile.get(PROFILE_ID)) ?? DEFAULT_PROFILE;
+}
+
 export async function getSettings(): Promise<Settings> {
   const existing = await db.settings.get(SETTINGS_ID);
   if (existing) return existing;
   await db.settings.put(DEFAULT_SETTINGS);
   return DEFAULT_SETTINGS;
+}
+
+// Read-only variant for useLiveQuery, which forbids writes inside the query.
+export async function readSettings(): Promise<Settings> {
+  return (await db.settings.get(SETTINGS_ID)) ?? DEFAULT_SETTINGS;
 }
 
 export async function saveSettings(patch: Partial<Settings>): Promise<Settings> {

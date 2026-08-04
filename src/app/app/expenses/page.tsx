@@ -4,14 +4,47 @@ import { useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db, type Expense, type Income } from "@/lib/db";
 import { currentMonthKey, nextMonth, prevMonth } from "@/lib/analytics";
-import { getProfile } from "@/lib/store";
+import { readProfile } from "@/lib/store";
+import { DEFAULT_CATEGORIES } from "@/lib/categories";
+
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 type Row = { type: "expense"; item: Expense } | { type: "income"; item: Income };
+
+interface EditForm {
+  amount: string;
+  category: string; // expense only
+  source: string; // income only
+  note: string;
+  date: string;
+}
+
+function toEditForm(row: Row): EditForm {
+  return {
+    amount: String(row.item.amount),
+    category: row.type === "expense" ? row.item.category : "",
+    source: row.type === "income" ? row.item.source : "",
+    note: row.type === "expense" ? (row.item.note ?? "") : "",
+    date: row.item.date,
+  };
+}
+
+function validateEdit(row: Row, form: EditForm): string | null {
+  const amount = Number(form.amount);
+  if (!Number.isFinite(amount) || amount <= 0) return "Amount must be a number greater than 0.";
+  if (!DATE_RE.test(form.date)) return "Date must be a valid date.";
+  if (row.type === "expense" && !form.category.trim()) return "Category is required.";
+  if (row.type === "income" && !form.source.trim()) return "Source is required.";
+  return null;
+}
 
 export default function ExpensesPage() {
   const [month, setMonth] = useState(currentMonthKey());
   const [category, setCategory] = useState("all");
   const [lastDeleted, setLastDeleted] = useState<Row | null>(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editForm, setEditForm] = useState<EditForm | null>(null);
+  const [editError, setEditError] = useState<string | null>(null);
 
   const data = useLiveQuery(async () => {
     const from = `${month}-01`;
@@ -19,7 +52,7 @@ export default function ExpensesPage() {
     const [expenses, income, profile] = await Promise.all([
       db.expenses.where("date").between(from, to, true, false).toArray(),
       db.income.where("date").between(from, to, true, false).toArray(),
-      getProfile(),
+      readProfile(),
     ]);
     return { expenses, income, profile };
   }, [month]);
@@ -67,6 +100,43 @@ export default function ExpensesPage() {
     if (lastDeleted.type === "expense") await db.expenses.put(lastDeleted.item);
     else await db.income.put(lastDeleted.item);
     setLastDeleted(null);
+  }
+
+  function startEdit(row: Row) {
+    setEditingId(row.item.id);
+    setEditForm(toEditForm(row));
+    setEditError(null);
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+    setEditForm(null);
+    setEditError(null);
+  }
+
+  async function saveEdit(row: Row) {
+    if (!editForm) return;
+    const error = validateEdit(row, editForm);
+    if (error) {
+      setEditError(error);
+      return;
+    }
+    const amount = Number(editForm.amount);
+    if (row.type === "expense") {
+      await db.expenses.update(row.item.id, {
+        amount,
+        category: editForm.category.trim(),
+        note: editForm.note.trim() || undefined,
+        date: editForm.date,
+      });
+    } else {
+      await db.income.update(row.item.id, {
+        amount,
+        source: editForm.source.trim(),
+        date: editForm.date,
+      });
+    }
+    cancelEdit();
   }
 
   const changeMonth = (fn: (m: string) => string) => () => {
@@ -131,9 +201,21 @@ export default function ExpensesPage() {
                 })}
               </h2>
               <div className="flex flex-col gap-2">
-                {dayRows.map((row) => (
-                  <RowView key={row.item.id} row={row} money={money} onDelete={onDelete} />
-                ))}
+                {dayRows.map((row) =>
+                  editingId === row.item.id && editForm ? (
+                    <EditRow
+                      key={row.item.id}
+                      row={row}
+                      form={editForm}
+                      error={editError}
+                      onChange={(next) => setEditForm(next)}
+                      onCancel={cancelEdit}
+                      onSave={() => saveEdit(row)}
+                    />
+                  ) : (
+                    <RowView key={row.item.id} row={row} money={money} onEdit={startEdit} onDelete={onDelete} />
+                  ),
+                )}
               </div>
             </section>
           ))}
@@ -166,22 +248,28 @@ const btnCls =
 function RowView({
   row,
   money,
+  onEdit,
   onDelete,
 }: {
   row: Row;
   money: Intl.NumberFormat;
+  onEdit: (row: Row) => void;
   onDelete: (row: Row) => void;
 }) {
   return (
     <div className="flex items-center gap-3 rounded-xl border border-slate-200 px-4 py-3 dark:border-slate-800">
-      <div className="min-w-0 flex-1">
+      <button
+        onClick={() => onEdit(row)}
+        className="min-w-0 flex-1 text-left"
+        aria-label={`Edit ${row.type === "expense" ? row.item.category : row.item.source}`}
+      >
         <p className="truncate text-sm font-medium">
           {row.type === "expense" ? row.item.category : row.item.source}
         </p>
         {row.type === "expense" && row.item.note && (
           <p className="truncate text-xs text-slate-500">{row.item.note}</p>
         )}
-      </div>
+      </button>
       <span
         className={`text-sm font-semibold ${row.type === "expense" ? "" : "text-green-600 dark:text-green-400"}`}
       >
@@ -195,6 +283,83 @@ function RowView({
       >
         ×
       </button>
+    </div>
+  );
+}
+
+function EditRow({
+  row,
+  form,
+  error,
+  onChange,
+  onCancel,
+  onSave,
+}: {
+  row: Row;
+  form: EditForm;
+  error: string | null;
+  onChange: (form: EditForm) => void;
+  onCancel: () => void;
+  onSave: () => void;
+}) {
+  const fieldCls =
+    "rounded-lg border border-slate-300 bg-background px-2.5 py-1.5 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 dark:border-slate-700";
+  return (
+    <div className="flex flex-col gap-2 rounded-xl border border-brand/40 px-4 py-3">
+      <div className="flex flex-wrap items-center gap-2">
+        {row.type === "expense" ? (
+          <select
+            value={form.category}
+            onChange={(e) => onChange({ ...form, category: e.target.value })}
+            className={fieldCls}
+          >
+            {[...new Set([form.category, ...DEFAULT_CATEGORIES])].filter(Boolean).map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <input
+            type="text"
+            value={form.source}
+            onChange={(e) => onChange({ ...form, source: e.target.value })}
+            placeholder="Source"
+            className={`${fieldCls} flex-1`}
+          />
+        )}
+        <input
+          type="number"
+          value={form.amount}
+          onChange={(e) => onChange({ ...form, amount: e.target.value })}
+          placeholder="Amount"
+          className={`${fieldCls} w-28`}
+        />
+        <input
+          type="date"
+          value={form.date}
+          onChange={(e) => onChange({ ...form, date: e.target.value })}
+          className={fieldCls}
+        />
+      </div>
+      {row.type === "expense" && (
+        <input
+          type="text"
+          value={form.note}
+          onChange={(e) => onChange({ ...form, note: e.target.value })}
+          placeholder="Note (optional)"
+          className={fieldCls}
+        />
+      )}
+      {error && <p className="text-xs text-red-600 dark:text-red-400">{error}</p>}
+      <div className="flex justify-end gap-2">
+        <button onClick={onCancel} className="rounded-lg px-3 py-1.5 text-sm text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800">
+          Cancel
+        </button>
+        <button onClick={onSave} className={btnCls}>
+          Save
+        </button>
+      </div>
     </div>
   );
 }

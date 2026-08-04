@@ -4,7 +4,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { DataResidencyBadge } from "@/components/DataResidencyBadge";
 import { db } from "@/lib/db";
 import { currentMonthKey, prevMonth, summarize } from "@/lib/analytics";
-import { getProfile } from "@/lib/store";
+import { readProfile } from "@/lib/store";
 
 export default function DashboardPage() {
   const summary = useLiveQuery(async () => {
@@ -14,7 +14,7 @@ export default function DashboardPage() {
     const [expenses, income, profile] = await Promise.all([
       db.expenses.where("date").between(from, to, true, false).toArray(),
       db.income.where("date").between(from, to, true, false).toArray(),
-      getProfile(),
+      readProfile(),
     ]);
     return summarize(month, expenses, income, profile);
   }, []);
