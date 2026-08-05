@@ -61,6 +61,12 @@ export async function runChatTurn(userText: string): Promise<TurnResult> {
   if (settings.provider === "groq" && !settings.apiKey) {
     return { ok: false, reply: "", outcomes: [], error: "Add your Groq API key in Settings first." };
   }
+  if (settings.provider === "nvidia" && !settings.apiKey) {
+    return { ok: false, reply: "", outcomes: [], error: "Add your NVIDIA API key in Settings first." };
+  }
+  if (settings.provider === "custom" && !settings.baseUrl) {
+    return { ok: false, reply: "", outcomes: [], error: "Add a base URL for your custom provider in Settings first." };
+  }
   // A custom base URL (proxy/gateway) may not require a key; the official
   // OpenAI endpoint always does.
   if (settings.provider === "openai" && !settings.baseUrl && !settings.apiKey) {
@@ -132,7 +138,7 @@ type ResolvedSettings = Awaited<ReturnType<typeof getSettings>>;
 
 function callProvider(settings: ResolvedSettings, msgs: Msg[]): Promise<ProviderMessage> {
   if (settings.provider === "gemini") return callGemini(settings, msgs);
-  return callOpenAiCompatible(settings, msgs); // openai + ollama + groq share this shape
+  return callOpenAiCompatible(settings, msgs); // openai + ollama + groq + nvidia + custom share this shape
 }
 
 // --- OpenAI-compatible provider call (OpenAI, Ollama, Groq) ---

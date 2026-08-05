@@ -13,10 +13,11 @@ export function needsSetup(s: Settings): boolean {
   if (s.provider === "ollama") return false; // local, no key needed
   if (s.provider === "anthropic") return true; // chat adapter not wired yet
   if (s.provider === "openai") return !s.apiKey && !s.baseUrl; // key or a gateway URL
-  return !s.apiKey; // gemini, groq all require a key
+  if (s.provider === "custom") return !s.baseUrl; // base URL required, key optional
+  return !s.apiKey; // gemini, groq, nvidia all require a key
 }
 
-const CONFIGURABLE: Provider[] = ["groq", "openai", "gemini", "ollama"];
+const CONFIGURABLE: Provider[] = ["groq", "openai", "gemini", "ollama", "nvidia", "custom"];
 
 export default function SetupScreen() {
   const settings = useLiveQuery(() => readSettings(), [], null);
@@ -57,8 +58,12 @@ export default function SetupScreen() {
 
   const meta = providerMeta(provider);
   const isAnthropic = settings.provider === "anthropic";
+  const usesBaseUrl = provider === "openai" || provider === "custom";
   const needsKey = provider !== "ollama";
-  const keyOk = provider === "openai" ? Boolean(apiKey.trim() || baseUrl.trim()) : Boolean(apiKey.trim());
+  const keyOk =
+    provider === "openai" ? Boolean(apiKey.trim() || baseUrl.trim()) : // key or a gateway URL
+    provider === "custom" ? Boolean(baseUrl.trim()) : // base URL required, key optional
+    Boolean(apiKey.trim());
   const saveable = provider === "ollama" || keyOk;
 
   async function onTest() {
@@ -70,7 +75,7 @@ export default function SetupScreen() {
       provider,
       apiKey: apiKey.trim(),
       model: "",
-      ...(provider === "openai" ? { baseUrl: baseUrl.trim() } : {}),
+      ...(usesBaseUrl ? { baseUrl: baseUrl.trim() } : {}),
     };
     setTestResult(await testConnection(s));
     setTesting(false);
@@ -82,7 +87,7 @@ export default function SetupScreen() {
     await saveSettings({
       provider,
       apiKey: apiKey.trim(),
-      ...(provider === "openai" ? { baseUrl: baseUrl.trim() } : { baseUrl: undefined }),
+      ...(usesBaseUrl ? { baseUrl: baseUrl.trim() } : { baseUrl: undefined }),
     });
     // Starting balances are optional — only write valid, non-negative numbers.
     const nCash = Number(cash);
@@ -153,9 +158,11 @@ export default function SetupScreen() {
             </label>
           )}
 
-          {provider === "openai" && (
+          {usesBaseUrl && (
             <label className="flex flex-col gap-1.5">
-              <span className="text-sm font-medium">Base URL (optional)</span>
+              <span className="text-sm font-medium">
+                Base URL{provider === "openai" ? " (optional)" : ""}
+              </span>
               <input
                 type="text"
                 value={baseUrl}
@@ -163,7 +170,11 @@ export default function SetupScreen() {
                 placeholder="https://api.openai.com/v1"
                 className="rounded-lg border border-slate-300 bg-background px-3.5 py-2.5 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 dark:border-slate-700"
               />
-              <p className="text-xs text-slate-500">For a proxy or gateway — OpenRouter, a local omniroute, etc.</p>
+              <p className="text-xs text-slate-500">
+                {provider === "custom"
+                  ? "Any OpenAI-compatible endpoint. API key is optional."
+                  : "For a proxy or gateway — OpenRouter, a local omniroute, etc."}
+              </p>
             </label>
           )}
 

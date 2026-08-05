@@ -63,7 +63,7 @@ export interface ChatMessage {
   createdAt: string;
 }
 
-export type Provider = "openai" | "anthropic" | "gemini" | "ollama" | "groq";
+export type Provider = "openai" | "anthropic" | "gemini" | "ollama" | "groq" | "nvidia" | "custom";
 
 // Single-record table; we always use id = 1.
 export interface Settings {

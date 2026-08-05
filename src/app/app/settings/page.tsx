@@ -283,8 +283,8 @@ export default function SettingsPage() {
                 )}
               </Field>
 
-              {form.provider === "openai" && (
-                <Field label="Base URL (optional)">
+              {(form.provider === "openai" || form.provider === "custom") && (
+                <Field label={form.provider === "custom" ? "Base URL" : "Base URL (optional)"}>
                   <input
                     value={form.baseUrl ?? ""}
                     onChange={(e) =>
@@ -297,8 +297,9 @@ export default function SettingsPage() {
                     className={`${inputCls} font-mono`}
                   />
                   <p className="text-xs text-slate-500">
-                    Point at an OpenAI-compatible proxy or gateway (OpenRouter, LiteLLM, Omniroute, etc.) instead of
-                    OpenAI directly. Leave blank to use OpenAI.
+                    {form.provider === "custom"
+                      ? "Any OpenAI-compatible endpoint (NVIDIA NIM, OpenRouter, LiteLLM, a local server…). API key is optional."
+                      : "Point at an OpenAI-compatible proxy or gateway (OpenRouter, LiteLLM, Omniroute, etc.) instead of OpenAI directly. Leave blank to use OpenAI."}
                   </p>
                 </Field>
               )}

@@ -50,34 +50,37 @@ export default function RecurringBillDue({
   }
 
   return (
-    <div className="rounded-2xl border border-brand/30 bg-brand/5 px-4 py-3 text-sm">
-      <p className="font-medium text-brand">Bills due — did they get deducted?</p>
-      <ul className="mt-2 space-y-2">
-        {remaining.map((b) => (
-          <li key={b.name} className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <span className="flex-1">
-              {b.name}{" "}
-              <span className="text-slate-500">
-                · {b.amount} {currency} · due {b.dayOfMonth}
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+      <div className="w-full max-w-md rounded-2xl border border-brand/30 bg-background px-4 py-4 text-sm shadow-2xl">
+        <p className="font-medium text-brand">Bills due — did they get deducted?</p>
+        <p className="mt-1 text-xs text-slate-500">Confirm only after the bill is actually debited from your bank.</p>
+        <ul className="mt-3 space-y-2">
+          {remaining.map((b) => (
+            <li key={b.name} className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-xl border border-slate-200 p-3 dark:border-slate-800">
+              <span className="flex-1">
+                {b.name}{" "}
+                <span className="text-slate-500">
+                  · {b.amount} {currency} · due {b.dayOfMonth}
+                </span>
               </span>
-            </span>
-            <button
-              type="button"
-              onClick={() => markDeducted(b)}
-              className="rounded-lg border border-brand bg-white px-3 py-1 text-xs font-semibold text-brand transition hover:bg-brand hover:text-white dark:border-brand/60 dark:bg-slate-900 dark:hover:bg-brand"
-            >
-              Yes, deducted
-            </button>
-          </li>
-        ))}
-      </ul>
-      <button
-        type="button"
-        onClick={dismissToday}
-        className="mt-3 text-xs text-slate-500 underline underline-offset-2 transition hover:text-slate-700 dark:hover:text-slate-300"
-      >
-        Not yet — remind me later
-      </button>
+              <button
+                type="button"
+                onClick={() => markDeducted(b)}
+                className="rounded-lg border border-brand bg-white px-3 py-1 text-xs font-semibold text-brand transition hover:bg-brand hover:text-white dark:border-brand/60 dark:bg-slate-900 dark:hover:bg-brand"
+              >
+                Yes, deducted
+              </button>
+            </li>
+          ))}
+        </ul>
+        <button
+          type="button"
+          onClick={dismissToday}
+          className="mt-3 text-xs text-slate-500 underline underline-offset-2 transition hover:text-slate-700 dark:hover:text-slate-300"
+        >
+          Not yet — remind me later
+        </button>
+      </div>
     </div>
   );
 }

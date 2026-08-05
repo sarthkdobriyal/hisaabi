@@ -12,9 +12,9 @@ const DEFAULT_PROFILE: Profile = {
 
 const DEFAULT_SETTINGS: Settings = {
   id: SETTINGS_ID,
-  provider: "openai",
+  provider: "nvidia", // dev default — NVIDIA NIM build key; real key set once in Settings
   apiKey: "",
-  model: "",
+  model: "nvidia/nemotron-3-super-120b-a12b",
 };
 
 export async function getProfile(): Promise<Profile> {

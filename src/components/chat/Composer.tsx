@@ -21,7 +21,7 @@ export function Composer({
   }
 
   return (
-    <div className="border-t border-border bg-background/80 pb-3 pt-2.5 backdrop-blur">
+    <div className="sticky bottom-0 z-20 border-t border-border bg-background/90 pb-3 pt-2.5 backdrop-blur">
       <form
         onSubmit={(e) => {
           e.preventDefault();

@@ -22,7 +22,11 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ChatPage() {
-  const messages = useLiveQuery(() => db.chatMessages.orderBy("createdAt").toArray(), [], []);
+  const messages = useLiveQuery(
+    async () => (await db.chatMessages.orderBy("createdAt").reverse().limit(50).toArray()).reverse(),
+    [],
+    [],
+  );
   const settings = useLiveQuery(() => readSettings(), [], null);
   const profile = useLiveQuery(() => readProfile(), [], null);
   const [input, setInput] = useState("");
@@ -38,7 +42,12 @@ export default function ChatPage() {
   // Only auto-scroll when the user is already near the bottom — never yank
   // them down mid-read when a background refresh adds a message.
   useEffect(() => {
-    if (nearBottom.current) endRef.current?.scrollIntoView({ behavior: "smooth" });
+    // Landing is instant, not smooth: smooth races with late layout (swap-in
+    // fonts, images) and stops short of the bottom. Re-scroll once fonts are
+    // applied so a hard reload always lands on the latest message.
+    if (!nearBottom.current) return;
+    endRef.current?.scrollIntoView({ behavior: "auto" });
+    document.fonts.ready.then(() => endRef.current?.scrollIntoView({ behavior: "auto" }));
   }, [messages, sending, cards]);
 
   function onListScroll() {
@@ -61,6 +70,8 @@ export default function ChatPage() {
     const text = input.trim();
     if (!text || sending) return;
     setInput("");
+    nearBottom.current = true;
+    setAtBottom(true);
     setError(null);
     setRateLimited(false);
     setSending(true);
@@ -92,7 +103,7 @@ export default function ChatPage() {
   const dueSalary = profile ? salaryDue(profile) : null;
 
   return (
-    <div className="flex flex-1 flex-col gap-4">
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
       <DataResidencyBadge />
 
       {dueSalary != null && <SalaryDue salary={dueSalary} currency={profile!.currency} />}
@@ -102,7 +113,7 @@ export default function ChatPage() {
         ref={listRef}
         onScroll={onListScroll}
         aria-live="polite"
-        className="flex flex-1 flex-col gap-3 overflow-y-auto"
+        className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pb-2"
       >
         {empty && !sending ? (
           <EmptyState onPick={setInput} />
@@ -153,7 +164,7 @@ export default function ChatPage() {
 
 function ChatSkeleton() {
   return (
-    <div className="flex flex-1 flex-col gap-4">
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
       <Skeleton className="h-10 w-full rounded-lg" />
       <div className="flex flex-1 flex-col gap-3">
         <Skeleton className="h-14 w-3/4 rounded-2xl" />
