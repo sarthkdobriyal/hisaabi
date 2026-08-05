@@ -8,6 +8,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${SITE}/features`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
     { url: `${SITE}/pricing`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
     { url: `${SITE}/about`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.6 },
+    { url: `${SITE}/blog`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.7 },
     { url: `${SITE}/privacy`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.4 },
     { url: `${SITE}/terms`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.4 },
     { url: `${SITE}/guides/ai-expense-tracker`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.9 },

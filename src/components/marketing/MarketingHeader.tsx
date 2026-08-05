@@ -22,6 +22,12 @@ export function MarketingHeader() {
           Pricing
         </Link>
         <Link
+          href="/blog"
+          className="hidden rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition hover:bg-brand/5 hover:text-foreground sm:inline-block"
+        >
+          Blog
+        </Link>
+        <Link
           href="/app"
           className="rounded-lg px-4 py-2 text-sm font-semibold text-brand-600 transition hover:bg-brand/5"
         >

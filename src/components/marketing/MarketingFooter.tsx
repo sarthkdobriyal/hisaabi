@@ -19,6 +19,9 @@ export function MarketingFooter() {
           <Link href="/about" className="transition hover:text-foreground">
             About
           </Link>
+          <Link href="/blog" className="transition hover:text-foreground">
+            Blog
+          </Link>
           <Link href="/privacy" className="transition hover:text-foreground">
             Privacy
           </Link>
