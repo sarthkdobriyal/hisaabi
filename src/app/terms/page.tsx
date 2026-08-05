@@ -64,9 +64,13 @@ export default function TermsPage() {
 
         <h2 className="mt-10 text-xl font-semibold">6. Open source</h2>
         <p className="mt-3 text-muted-foreground">
-          Hisaabi is open source, which means you can read, modify and run the code yourself. The
-          project is provided under its open-source license; this page describes use of the hosted
-          application and does not restrict your rights under that license.
+          Hisaabi is{" "}
+          <Link href="https://github.com/sarthkdobriyal/hisaabi" target="_blank" rel="noreferrer" className="text-brand hover:underline">
+            open source
+          </Link>
+          , which means you can read, modify and run the code yourself. The project is provided
+          under its open-source license; this page describes use of the hosted application and does
+          not restrict your rights under that license.
         </p>
 
         <h2 className="mt-10 text-xl font-semibold">7. Limitation of liability</h2>
@@ -84,7 +88,11 @@ export default function TermsPage() {
 
         <p className="mt-10 text-sm text-muted-foreground">
           Questions? Read the <Link href="/privacy" className="text-brand hover:underline">Privacy
-          Policy</Link> or open an issue on the project repository.
+          Policy</Link> or{" "}
+          <Link href="https://github.com/sarthkdobriyal/hisaabi" target="_blank" rel="noreferrer" className="text-brand hover:underline">
+            open an issue on GitHub
+          </Link>
+          .
         </p>
       </main>
       <MarketingFooter />

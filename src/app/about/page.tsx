@@ -80,10 +80,14 @@ export default function AboutPage() {
 
         <h2 className="mt-12 text-2xl font-bold tracking-tight">Open source</h2>
         <p className="mt-4 text-muted-foreground">
-          Hisaabi is open source. The privacy claim isn’t a promise you have to take on faith — read
-          the code, run it yourself, or audit exactly what the app sends. That’s the strongest
-          guarantee we can offer, and we think it’s the only one that matters for something as
-          sensitive as your finances.
+          Hisaabi is{" "}
+          <Link href="https://github.com/sarthkdobriyal/hisaabi" target="_blank" rel="noreferrer" className="text-brand hover:underline">
+            open source
+          </Link>
+          . The privacy claim isn’t a promise you have to take on faith — read the code, run it
+          yourself, or audit exactly what the app sends. That’s the strongest guarantee we can
+          offer, and we think it’s the only one that matters for something as sensitive as your
+          finances.
         </p>
 
         <div className="mt-12 rounded-3xl border border-brand/30 bg-brand/5 p-8 text-center">

@@ -58,7 +58,8 @@ export default function PrivacyPage() {
           Open <Link href="/app" className="text-brand hover:underline">the app</Link>, open
           DevTools, switch to the <em>Network</em> tab, and send a message. You will see exactly one
           request — to the AI provider you chose. That is the whole network story. Hisaabi is also{" "}
-          <strong>open source</strong>, so anyone can read exactly what the app does.
+          <Link href="https://github.com/sarthkdobriyal/hisaabi" target="_blank" rel="noreferrer" className="text-brand hover:underline">open source</Link>
+          , so anyone can read exactly what the app does.
         </p>
 
         <h2 className="mt-10 text-xl font-semibold">Your AI provider</h2>
@@ -78,7 +79,11 @@ export default function PrivacyPage() {
 
         <p className="mt-10 text-sm text-muted-foreground">
           Questions? Read the <Link href="/terms" className="text-brand hover:underline">Terms of
-          Service</Link> or open an issue on the project repository.
+          Service</Link> or{" "}
+          <Link href="https://github.com/sarthkdobriyal/hisaabi" target="_blank" rel="noreferrer" className="text-brand hover:underline">
+            open an issue on GitHub
+          </Link>
+          .
         </p>
       </main>
       <MarketingFooter />
