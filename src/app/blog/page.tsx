@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { BlogGrid } from "@/components/blog/BlogGrid";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { MarketingHeader } from "@/components/marketing/MarketingHeader";
-import { BLOG_POSTS } from "@/lib/blog";
+import { BLOG_POSTS } from "@/lib/posts";
 
 export const metadata: Metadata = {
   title: "Blog — AI expense tracking & money",

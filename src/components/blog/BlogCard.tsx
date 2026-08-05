@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { FileText, Quote } from "lucide-react";
 import type { BlogPost, Category } from "@/lib/blog";
 
@@ -31,7 +32,7 @@ const ACCENT: Record<Category, { text: string; hoverText: string; borderHover: s
   },
 };
 
-const HEIGHT: Record<BlogPost["image"], string> = {
+const HEIGHT: Record<NonNullable<BlogPost["image"]>, string> = {
   short: "h-40",
   medium: "h-64",
   tall: "h-96",
@@ -47,9 +48,14 @@ function initials(name: string) {
 }
 
 export function BlogCard({ post }: { post: BlogPost }) {
+  const focus = "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand";
+
   if (post.quote) {
     return (
-      <article className="mb-8 flex min-h-[300px] break-inside-avoid flex-col items-center justify-center gap-6 rounded-xl border border-border bg-muted p-8 text-center">
+      <Link
+        href={`/blog/${post.slug}`}
+        className={`mb-8 flex min-h-[300px] break-inside-avoid flex-col items-center justify-center gap-6 rounded-xl border border-border bg-muted p-8 text-center transition duration-200 ease-[cubic-bezier(0.4,0,0.2,1)] hover:border-muted-foreground/50 ${focus}`}
+      >
         <Quote className="size-8 text-muted-foreground/40" strokeWidth={1.5} />
         <blockquote className="text-3xl font-bold leading-tight tracking-tight">
           {post.title}
@@ -59,17 +65,18 @@ export function BlogCard({ post }: { post: BlogPost }) {
           <span>{post.author}</span>
           <span className="h-px w-8 bg-muted-foreground/40" aria-hidden />
         </div>
-      </article>
+      </Link>
     );
   }
 
   const a = ACCENT[post.category];
   return (
-    <article
-      className={`group mb-8 break-inside-avoid overflow-hidden rounded-xl border border-border bg-card shadow-sm transition duration-200 ease-[cubic-bezier(0.4,0,0.2,1)] ${a.borderHover}`}
+    <Link
+      href={`/blog/${post.slug}`}
+      className={`group mb-8 block break-inside-avoid overflow-hidden rounded-xl border border-border bg-card shadow-sm transition duration-200 ease-[cubic-bezier(0.4,0,0.2,1)] ${a.borderHover} ${focus}`}
     >
       <div
-        className={`flex items-center justify-center bg-muted text-muted-foreground/50 ${HEIGHT[post.image]}`}
+        className={`flex items-center justify-center bg-muted text-muted-foreground/50 ${HEIGHT[post.image ?? "medium"]}`}
       >
         <FileText className="size-6" strokeWidth={1.5} />
       </div>
@@ -95,6 +102,6 @@ export function BlogCard({ post }: { post: BlogPost }) {
           </div>
         </div>
       </div>
-    </article>
+    </Link>
   );
 }

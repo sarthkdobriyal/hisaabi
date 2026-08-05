@@ -8,15 +8,29 @@ export type BlogPost = {
   date: string;
   readTime: string;
   author: string;
-  image: "short" | "medium" | "tall";
+  image?: "short" | "medium" | "tall";
   quote?: boolean;
 };
 
 export const CATEGORIES: ("All" | Category)[] = ["All", "AI", "Privacy", "Money", "Product", "Open Source"];
 
-// Seed posts render the blog design. Replace with the MDX pipeline
-// (content/blog/*.mdx + frontmatter) when that milestone lands.
-export const BLOG_POSTS: BlogPost[] = [
+export function categoryOf(tags: string[]): Category {
+  return CATEGORIES.find((c): c is Category => c !== "All" && tags.includes(c)) ?? "Product";
+}
+
+// Parses YYYY-MM-DD without touching Date's timezone (dates stay the same day everywhere).
+export function formatDate(iso: string): string {
+  const [y, m, d] = iso.slice(0, 10).split("-").map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+// Design-proof posts. Shown only while /content/blog is empty; real posts
+// (loaded in posts.ts) replace them the moment the first one lands.
+export const SEED_POSTS: BlogPost[] = [
   {
     slug: "ai-expense-tracker-what-it-does",
     title: "What an AI expense tracker actually does",
