@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import {
   MessageSquareText,
@@ -8,6 +7,8 @@ import {
   ShieldCheck,
   WifiOff,
 } from "lucide-react";
+import { MarketingFooter } from "@/components/marketing/MarketingFooter";
+import { MarketingHeader } from "@/components/marketing/MarketingHeader";
 
 const SITE = "https://hisaabi.co.in";
 
@@ -112,18 +113,7 @@ export default function Home() {
       />
 
       {/* Header */}
-      <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-5">
-        <div className="flex items-center gap-2">
-          <Image src="/hisaabi-icon.svg" alt="Hisaabi" width={32} height={32} className="rounded-lg" />
-          <span className="text-lg font-bold tracking-tight">Hisaabi</span>
-        </div>
-        <Link
-          href="/app"
-          className="rounded-lg px-4 py-2 text-sm font-semibold text-brand-600 transition hover:bg-brand/5"
-        >
-          Open app
-        </Link>
-      </header>
+      <MarketingHeader />
 
       {/* Hero */}
       <section className="mx-auto flex w-full max-w-3xl flex-col items-center px-6 pb-16 pt-10 text-center sm:pt-16">
@@ -240,22 +230,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border">
-        <div className="mx-auto flex w-full max-w-5xl flex-col items-center justify-between gap-3 px-6 py-8 text-sm text-muted-foreground sm:flex-row">
-          <div className="flex items-center gap-2">
-            <Image src="/hisaabi-icon.svg" alt="" width={20} height={20} className="rounded" />
-            <span>Hisaabi — chat your expenses, keep your data.</span>
-          </div>
-          <div className="flex items-center gap-5">
-            <Link href="/app" className="transition hover:text-foreground">
-              Open app
-            </Link>
-            <Link href="/app/settings" className="transition hover:text-foreground">
-              Settings
-            </Link>
-          </div>
-        </div>
-      </footer>
+      <MarketingFooter />
     </main>
   );
 }
