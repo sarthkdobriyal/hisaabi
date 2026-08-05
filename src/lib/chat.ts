@@ -306,9 +306,26 @@ function friendlyError(e: unknown): string {
   if (e instanceof HttpError) {
     if (e.status === 401) return "Your API key was rejected. Check it in Settings.";
     if (e.status === 429) return "Rate limited by the provider. Wait a moment and try again.";
-    return `Provider error (${e.status}). Your message was saved.`;
+    const hint = providerBodyHint(e.body);
+    return `Provider error (${e.status})${hint ? `: ${hint}` : ""}. Your message was saved.`;
   }
   return "Couldn't reach the provider — check your key/URL, or CORS. Your message was saved.";
+}
+
+// Pull a human-readable reason out of a provider error body (usually JSON like
+// {"error":{"message":"Model Not Found"}}); return null when it's not useful.
+function providerBodyHint(body: string): string | null {
+  if (!body) return null;
+  const trimmed = body.trim();
+  if (trimmed.startsWith("<")) return null; // HTML error page
+  try {
+    const data = JSON.parse(trimmed);
+    const msg = data?.error?.message ?? data?.message;
+    if (typeof msg === "string" && msg) return msg.slice(0, 120);
+  } catch {
+    // not JSON — fall through
+  }
+  return trimmed.length <= 120 ? trimmed : null;
 }
 
 // Compact context the model reads for grounding — profile, this month's totals,
@@ -316,6 +333,6 @@ function friendlyError(e: unknown): string {
 function contextBlock(ctx: ChatContext): string {
   return [
     "User context (JSON). Use these numbers directly; do not recompute.",
-    JSON.stringify({ profile: ctx.profile, monthlySummary: ctx.summary, memories: ctx.memories }),
+    JSON.stringify({ profile: ctx.profile, categories: ctx.categories, monthlySummary: ctx.summary, memories: ctx.memories }),
   ].join("\n");
 }

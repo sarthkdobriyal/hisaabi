@@ -1,0 +1,15 @@
+{
+  "mcp": {
+    "code-review-graph": {
+      "type": "local",
+      "command": [
+        "C:\\Users\\dobri\\AppData\\Local\\Programs\\Python\\Python310\\python.exe",
+        "-m",
+        "code_review_graph",
+        "serve",
+        "--repo",
+        "C:\\Users\\dobri\\OneDrive\\Desktop\\newProject\\hisaabi"
+      ]
+    }
+  }
+}

@@ -7,7 +7,10 @@ import { runTool } from "@/lib/tools";
 import { runChatTurn, type ToolOutcome } from "@/lib/chat";
 import { DataResidencyBadge } from "@/components/DataResidencyBadge";
 import SetupScreen, { needsSetup } from "@/components/SetupScreen";
-import { readSettings, saveSettings } from "@/lib/store";
+import RecurringBillDue from "@/components/RecurringBillDue";
+import SalaryDue from "@/components/SalaryDue";
+import { readProfile, readSettings, saveSettings } from "@/lib/store";
+import { dueBills, salaryDue } from "@/lib/recurring";
 import { PROVIDERS, providerMeta } from "@/lib/providers";
 
 interface Card extends ToolOutcome {
@@ -17,6 +20,7 @@ interface Card extends ToolOutcome {
 export default function ChatPage() {
   const messages = useLiveQuery(() => db.chatMessages.orderBy("createdAt").toArray(), [], []);
   const settings = useLiveQuery(() => readSettings(), [], null);
+  const profile = useLiveQuery(() => readProfile(), [], null);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -64,10 +68,15 @@ export default function ChatPage() {
   }
 
   const empty = (messages?.length ?? 0) === 0;
+  const due = profile ? dueBills(profile) : [];
+  const dueSalary = profile ? salaryDue(profile) : null;
 
   return (
     <div className="flex flex-1 flex-col gap-4">
       <DataResidencyBadge />
+
+      {dueSalary != null && <SalaryDue salary={dueSalary} currency={profile!.currency} />}
+      {due.length > 0 && <RecurringBillDue bills={due} currency={profile!.currency} />}
 
       <div className="flex flex-1 flex-col gap-3 overflow-y-auto">
         {empty && !sending ? (

@@ -47,8 +47,10 @@ export const PROVIDERS: ProviderMeta[] = [
     id: "groq",
     label: "Groq (free tier)",
     needsKey: true,
-    defaultModel: "llama-3.3-70b-versatile",
-    modelSuggestions: ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "mixtral-8x7b-32768"],
+    // llama-3.3-70b-versatile / llama-3.1-8b-instant / mixtral-8x7b-32768 were
+    // retired by Groq (2026); gpt-oss-* and qwen are the current replacements.
+    defaultModel: "openai/gpt-oss-120b",
+    modelSuggestions: ["openai/gpt-oss-120b", "openai/gpt-oss-20b", "qwen/qwen3.6-27b"],
     keyHint: "gsk_…",
     keyUrl: "https://console.groq.com/keys",
   },

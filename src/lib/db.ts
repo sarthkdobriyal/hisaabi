@@ -10,6 +10,7 @@ export interface Expense {
   note?: string;
   date: string; // YYYY-MM-DD
   createdAt: string; // ISO timestamp
+  account?: "cash" | "bank"; // which balance this came out of; bank by default
 }
 
 export interface Income {
@@ -18,6 +19,7 @@ export interface Income {
   source: string;
   date: string; // YYYY-MM-DD
   createdAt: string;
+  account?: "cash" | "bank"; // which balance this landed in; bank by default
 }
 
 export interface BudgetGoal {
@@ -29,6 +31,7 @@ export interface RecurringBill {
   name: string;
   amount: number;
   dayOfMonth: number;
+  lastPaidMonth?: string; // YYYY-MM, set when the user confirms the bill was deducted
 }
 
 // Single-record table; we always use id = 1.
@@ -36,10 +39,13 @@ export interface Profile {
   id: number;
   salary?: number;
   salaryDate?: number; // day of month
+  lastCreditedMonth?: string; // YYYY-MM, when the user confirmed salary landed
   currency: string; // default INR
   budgetGoals: BudgetGoal[];
   recurringBills: RecurringBill[];
   customCategories: string[];
+  cashBalance?: number; // running cash-in-hand total
+  bankBalance?: number; // running bank total
 }
 
 export interface Memory {

@@ -29,8 +29,26 @@ The twist: **there is no server, no account, no cloud.** All your expenses, inco
 - **Your AI, your key** — OpenAI, Anthropic (Claude), Google Gemini, or fully offline with **Ollama**.
 - **100% local data** — private by architecture, not by promise. No servers to leak.
 - **Works offline** — installable PWA; your dashboard loads with no internet.
+- **Tracks cash and bank separately** — running balances for both, editable on the dashboard, with expenses defaulting to the bank account (UPI/card) unless you say cash.
 - **Open source** — audit every line. The privacy claim is verifiable.
 - **Free forever.**
+
+## Features
+
+- **Chat-first expense logging** — type *"spent 450 on groceries"*; the AI categorizes, records, and shows a confirm card with Undo.
+- **Cash & bank balances** — set starting balances during setup (or on the dashboard) and they adjust automatically as you log money in and out.
+- **Recurring bill reminders** — add monthly bills in Settings; on the due day a popup on the chat page asks *"was it deducted?"* — one tap logs the expense.
+- **Salary credit popup** — on your salary day, confirm the credit and it's recorded as income in one tap.
+- **Categorized dashboard** — monthly income/expense/net, category spend vs budget limits, daily spend bars, and month-over-month comparison.
+- **Loans** — a "Loan / Borrowed" category keeps borrows and repayments balanced (see the onboarding guide below).
+
+## First time? Start here
+
+The most common pitfall is a mismatch between this month's **Net** (income − expenses) and the **Total money** shown in Balances — usually because money moved that wasn't logged (an old loan repaid, a cash gift). Two habits keep them aligned:
+
+1. **Set your starting balances first.** During setup you'll be asked how much cash and bank money you have right now. This is your baseline; everything after it is tracked movement.
+2. **Log both sides of a transfer.** Borrowed ₹3,000 last month and repaid it? Log the borrow as income (*"borrowed 3000 from Rohan"*) and the repayment as an expense in the **Loan / Borrowed** category (*"paid back 3000 to Rohan"*). Skipping one side makes your balance and category spend diverge.
+3. **Say when it's cash.** Expenses default to the bank account (UPI/card). If you paid in cash, just say so: *"spent 200 cash on coffee"*.
 
 ## Privacy — prove it yourself
 
@@ -94,9 +112,10 @@ Found a security issue? Please open an issue (or a private advisory) rather than
 ## Roadmap
 
 - [x] Local-first foundation: Dexie schema, PWA, brand
-- [ ] Settings: provider/key management, export/import, encryption
-- [ ] Chat interface + AI tool calling + context assembly
-- [ ] Dashboard: category breakdown, trends, budgets (Recharts)
+- [x] Chat interface + AI tool calling + context assembly
+- [x] Dashboard: balances, category breakdown, budgets, trends
+- [x] Cash/bank balance tracking + salary & recurring-bill popups
+- [ ] Settings: export/import, encryption at rest
 - [ ] Marketing site + blog + full SEO
 - [ ] Deploy
 

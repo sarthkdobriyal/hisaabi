@@ -5,7 +5,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { DataResidencyBadge } from "@/components/DataResidencyBadge";
 import { SETTINGS_ID, type Provider, type Settings } from "@/lib/db";
 import { providerMeta, testConnection, type TestResult } from "@/lib/providers";
-import { readSettings, saveSettings } from "@/lib/store";
+import { readProfile, readSettings, saveProfile, saveSettings } from "@/lib/store";
 
 // True when chat can't talk to the chosen provider yet — the chat page shows
 // the setup screen instead of letting the first message error out.
@@ -20,13 +20,17 @@ const CONFIGURABLE: Provider[] = ["groq", "openai", "gemini", "ollama"];
 
 export default function SetupScreen() {
   const settings = useLiveQuery(() => readSettings(), [], null);
+  const profile = useLiveQuery(() => readProfile(), [], null);
   const [provider, setProvider] = useState<Provider>("openai");
   const [apiKey, setApiKey] = useState("");
   const [baseUrl, setBaseUrl] = useState("");
+  const [cash, setCash] = useState("0");
+  const [bank, setBank] = useState("0");
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState<TestResult | null>(null);
   const [saved, setSaved] = useState(false);
   const seeded = useRef(false);
+  const balancesSeeded = useRef(false);
 
   // Seed form fields from the stored settings once, after the live query loads.
   useEffect(() => {
@@ -37,6 +41,15 @@ export default function SetupScreen() {
       setBaseUrl(settings.baseUrl ?? "");
     }
   }, [settings]);
+
+  // Seed the balance fields from the stored profile once it loads.
+  useEffect(() => {
+    if (profile && !balancesSeeded.current) {
+      balancesSeeded.current = true;
+      setCash(String(profile.cashBalance ?? 0));
+      setBank(String(profile.bankBalance ?? 0));
+    }
+  }, [profile]);
 
   if (!settings) {
     return <div className="py-16 text-center text-sm text-slate-500">Loading…</div>;
@@ -70,6 +83,13 @@ export default function SetupScreen() {
       provider,
       apiKey: apiKey.trim(),
       ...(provider === "openai" ? { baseUrl: baseUrl.trim() } : { baseUrl: undefined }),
+    });
+    // Starting balances are optional — only write valid, non-negative numbers.
+    const nCash = Number(cash);
+    const nBank = Number(bank);
+    await saveProfile({
+      ...(Number.isFinite(nCash) && nCash >= 0 ? { cashBalance: nCash } : {}),
+      ...(Number.isFinite(nBank) && nBank >= 0 ? { bankBalance: nBank } : {}),
     });
     setSaved(true);
     // The chat page's live query picks up the new settings and swaps to chat.
@@ -153,6 +173,35 @@ export default function SetupScreen() {
               <span className="font-mono">http://localhost:11434</span>). No key, nothing leaves your machine.
             </p>
           )}
+
+          <div className="rounded-xl border border-dashed border-slate-300 p-4 dark:border-slate-700">
+            <p className="text-sm font-medium">Starting balances</p>
+            <p className="mt-0.5 text-xs text-slate-500">
+              How much money do you have right now? Skip for now and set it on the dashboard later — expenses default to the bank account unless you say cash.
+            </p>
+            <div className="mt-3 grid grid-cols-2 gap-3">
+              <label className="flex flex-col gap-1">
+                <span className="text-xs text-slate-500">Cash</span>
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  value={cash}
+                  onChange={(e) => setCash(e.target.value)}
+                  className="rounded-lg border border-slate-300 bg-background px-3 py-2 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 dark:border-slate-700"
+                />
+              </label>
+              <label className="flex flex-col gap-1">
+                <span className="text-xs text-slate-500">Bank</span>
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  value={bank}
+                  onChange={(e) => setBank(e.target.value)}
+                  className="rounded-lg border border-slate-300 bg-background px-3 py-2 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 dark:border-slate-700"
+                />
+              </label>
+            </div>
+          </div>
 
           <div className="flex items-center gap-2 pt-1">
             <button

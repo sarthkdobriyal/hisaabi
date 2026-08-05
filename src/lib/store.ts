@@ -6,6 +6,8 @@ const DEFAULT_PROFILE: Profile = {
   budgetGoals: [],
   recurringBills: [],
   customCategories: [],
+  cashBalance: 0,
+  bankBalance: 0,
 };
 
 const DEFAULT_SETTINGS: Settings = {

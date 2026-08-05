@@ -1,10 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { DataResidencyBadge } from "@/components/DataResidencyBadge";
 import { db } from "@/lib/db";
 import { currentMonthKey, prevMonth, summarize } from "@/lib/analytics";
-import { readProfile } from "@/lib/store";
+import { readProfile, saveProfile } from "@/lib/store";
 
 export default function DashboardPage() {
   const summary = useLiveQuery(async () => {
@@ -18,6 +19,7 @@ export default function DashboardPage() {
     ]);
     return summarize(month, expenses, income, profile);
   }, []);
+  const profile = useLiveQuery(() => readProfile(), [], null);
 
   if (!summary) {
     return <div className="py-16 text-center text-sm text-slate-500">Loading dashboard…</div>;
@@ -39,6 +41,8 @@ export default function DashboardPage() {
         <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
         <p className="text-sm text-slate-500">Your monthly money picture, computed locally from this browser.</p>
       </header>
+
+      {profile && <BalancesCard cash={profile.cashBalance ?? 0} bank={profile.bankBalance ?? 0} currency={profile.currency} />}
 
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard label="Income" value={money.format(summary.incomeTotal)} tone="good" />
@@ -109,6 +113,65 @@ function StatCard({ label, value, tone }: { label: string; value: string; tone: 
       <p className="text-sm text-slate-500">{label}</p>
       <p className={`mt-2 text-2xl font-bold ${tone === "good" ? "text-brand-600" : "text-red-600"}`}>{value}</p>
     </div>
+  );
+}
+
+// Running cash/bank totals. Editable so the user can set their starting balance;
+// salary credits and expense writes keep them current. The input key includes the
+// stored balance, so an external change (e.g. a salary credit) remounts the input
+// with the fresh value.
+function BalancesCard({ cash, bank, currency }: { cash: number; bank: number; currency: string }) {
+  const [c, setC] = useState(String(cash));
+  const [b, setB] = useState(String(bank));
+
+  const total = (Number(c) || 0) + (Number(b) || 0);
+  const fmt = new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 0,
+  });
+
+  async function commit(which: "cash" | "bank") {
+    const v = Number(which === "cash" ? c : b);
+    if (!Number.isFinite(v) || v < 0) return;
+    await saveProfile(which === "cash" ? { cashBalance: v } : { bankBalance: v });
+  }
+
+  const fields = [
+    { which: "cash" as const, label: "Cash", value: c, set: setC, key: `cash-${cash}` },
+    { which: "bank" as const, label: "Bank", value: b, set: setB, key: `bank-${bank}` },
+  ];
+
+  return (
+    <section className="rounded-2xl border border-slate-200 bg-background p-6 shadow-sm dark:border-slate-800">
+      <div className="flex items-baseline justify-between">
+        <h2 className="text-base font-semibold tracking-tight">Balances</h2>
+        <span className="text-xs text-slate-500">Edit a number, then press Enter</span>
+      </div>
+      <div className="mt-4 grid gap-4 sm:grid-cols-3">
+        {fields.map((f) => (
+          <label key={f.which} className="block rounded-xl border border-slate-200 p-4 dark:border-slate-800">
+            <span className="text-sm text-slate-500">{f.label}</span>
+            <input
+              key={f.key}
+              type="number"
+              inputMode="decimal"
+              value={f.value}
+              onChange={(e) => f.set(e.target.value)}
+              onBlur={() => commit(f.which)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+              }}
+              className="mt-1 w-full bg-transparent text-2xl font-bold outline-none"
+            />
+          </label>
+        ))}
+        <div className="rounded-xl border border-brand/30 bg-brand/5 p-4 dark:border-brand/60">
+          <p className="text-sm text-slate-500">Total money</p>
+          <p className="mt-1 text-2xl font-bold text-brand">{fmt.format(total)}</p>
+        </div>
+      </div>
+    </section>
   );
 }
 

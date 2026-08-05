@@ -1,5 +1,6 @@
 import { db, type BudgetGoal, type RecurringBill } from "./db";
 import { getProfile, saveProfile } from "./store";
+import { DEFAULT_CATEGORIES } from "./categories";
 import { getMonthlySummary } from "./analytics.query";
 import { aggregateRange, type GroupBy, type MonthlySummary, type RangeResult } from "./analytics";
 
@@ -49,34 +50,58 @@ type Args = Record<string, unknown>;
 
 // --- Handlers ---
 
+function accountOf(v: unknown): "cash" | "bank" {
+  return v === "cash" ? "cash" : "bank";
+}
+
+// Balances are running totals on the profile record. Only rows carrying an
+// explicit account (i.e. created after this feature) adjust them — legacy rows
+// predate balances and never touched them.
+async function adjustBalance(account: "cash" | "bank", delta: number): Promise<void> {
+  const p = await getProfile();
+  await saveProfile({
+    cashBalance: Math.round(((p.cashBalance ?? 0) + (account === "cash" ? delta : 0)) * 100) / 100,
+    bankBalance: Math.round(((p.bankBalance ?? 0) + (account === "bank" ? delta : 0)) * 100) / 100,
+  });
+}
+
 export async function addExpense(a: Args) {
+  const account = accountOf(a.account);
   const row = {
     amount: positive(a.amount, "amount"),
     category: str(a.category, "category"),
     note: typeof a.note === "string" ? a.note.trim() || undefined : undefined,
     date: date(a.date),
     createdAt: new Date().toISOString(),
+    account,
   };
   const id = await db.expenses.add(row);
+  await adjustBalance(account, -row.amount);
   return { id, ...row };
 }
 
 export async function addIncome(a: Args) {
+  const account = accountOf(a.account);
   const row = {
     amount: positive(a.amount, "amount"),
     source: str(a.source, "source"),
     date: date(a.date),
     createdAt: new Date().toISOString(),
+    account,
   };
   const id = await db.income.add(row);
+  await adjustBalance(account, row.amount);
   return { id, ...row };
 }
 
 export async function deleteExpense(a: Args): Promise<{ id: number; deleted: boolean }> {
   const id = num(a.id, "id");
-  const existed = (await db.expenses.get(id)) != null;
-  if (existed) await db.expenses.delete(id);
-  return { id, deleted: existed };
+  const row = await db.expenses.get(id);
+  if (row) {
+    await db.expenses.delete(id);
+    if (row.account) await adjustBalance(row.account, row.amount);
+  }
+  return { id, deleted: row != null };
 }
 
 export async function queryExpenses(a: Args): Promise<RangeResult> {
@@ -96,6 +121,7 @@ export async function updateProfile(a: Args) {
   if (a.currency != null) patch.currency = str(a.currency, "currency");
   if (Array.isArray(a.budgetGoals)) patch.budgetGoals = a.budgetGoals as BudgetGoal[];
   if (Array.isArray(a.recurringBills)) patch.recurringBills = a.recurringBills as RecurringBill[];
+  if (Array.isArray(a.customCategories)) patch.customCategories = a.customCategories as string[];
   return saveProfile(patch);
 }
 
@@ -139,6 +165,7 @@ export const TOOL_DEFS = [
         category: s("string", "Spending category, e.g. Groceries, Transport."),
         note: s("string", "Optional short note about the expense."),
         date: s("string", "Date as YYYY-MM-DD. Omit for today."),
+        account: s("string", "Optional: 'cash' or 'bank'. Defaults to 'bank' (UPI/card) unless the user says they paid in cash."),
       },
       required: ["amount", "category"],
     },
@@ -152,6 +179,7 @@ export const TOOL_DEFS = [
         amount: s("number", "Amount received, positive."),
         source: s("string", "Where the income came from, e.g. Salary."),
         date: s("string", "Date as YYYY-MM-DD. Omit for today."),
+        account: s("string", "Optional: 'cash' or 'bank'. Defaults to 'bank' unless the money came in as cash."),
       },
       required: ["amount", "source"],
     },
@@ -201,6 +229,11 @@ export const TOOL_DEFS = [
             required: ["name", "amount", "dayOfMonth"],
           },
         },
+        customCategories: {
+          type: "array",
+          description: "Extra categories the user created beyond the defaults. Only add after the user confirms.",
+          items: { type: "string" },
+        },
       },
     },
   },
@@ -230,7 +263,15 @@ export const TOOL_DEFS = [
 export interface ChatContext {
   system: string;
   summary: MonthlySummary;
-  profile: { salary?: number; currency: string; budgetGoals: BudgetGoal[]; recurringBills: RecurringBill[] };
+  categories: string[];
+  profile: {
+    salary?: number;
+    currency: string;
+    budgetGoals: BudgetGoal[];
+    recurringBills: RecurringBill[];
+    cashBalance: number;
+    bankBalance: number;
+  };
   memories: string[];
   recentMessages: { role: string; content: string }[];
 }
@@ -246,11 +287,14 @@ export async function assembleContext(historyLimit = 10): Promise<ChatContext> {
   return {
     system: buildSystemPrompt(),
     summary,
+    categories: Array.from(new Set([...DEFAULT_CATEGORIES, ...profile.customCategories])),
     profile: {
       salary: profile.salary,
       currency: profile.currency,
       budgetGoals: profile.budgetGoals,
       recurringBills: profile.recurringBills,
+      cashBalance: profile.cashBalance ?? 0,
+      bankBalance: profile.bankBalance ?? 0,
     },
     memories: memRows.map((m) => m.note),
     recentMessages: recent.reverse().map((m) => ({ role: m.role, content: m.content })),
@@ -264,8 +308,14 @@ function buildSystemPrompt(): string {
     "",
     "Rules:",
     "- To record money in/out, call add_expense or add_income. Confirm each write plainly (amount, category, date).",
+    "- Money moves through the BANK account by default. Only set account to 'cash' when the user says they paid/received cash.",
+    "- Loans need BOTH sides: when the user borrows or receives a loan, call add_income with source like 'Loan: <who>' so the money lands in their balance. When they repay or lend money out, call add_expense with category 'Loan / Borrowed'. Never record a loan on just one side, or balances and category spend silently diverge.",
+    "- For balance questions ('how much cash/bank/total do I have'), read the cashBalance/bankBalance in the context JSON — never add or subtract anything yourself.",
     "- NEVER compute totals or sums yourself. For any 'how much did I spend' question, call query_expenses and report its numbers verbatim.",
     "- If the input is ambiguous (e.g. an amount with no category), ask ONE short clarifying question instead of guessing.",
+    "- Pick a category from the 'categories' list in the context JSON whenever one is a reasonable fit (e.g. 'movies' → Entertainment). Use the exact name from that list.",
+    "- Only consider a NEW category when nothing in the list fits. Then ASK the user first: 'Add to <closest existing category>, or create a new \"<name>\" category?' and wait for their answer. Never add a category silently.",
+    "- Persist a confirmed new category via update_profile (customCategories), then use it for the expense.",
     "- Use the user's currency and the monthly summary provided for context. Dates are YYYY-MM-DD; omit date to mean today.",
     "- When the user states a durable fact or preference, call save_memory.",
     "- Be concise and friendly. Never claim data is stored anywhere but this device.",

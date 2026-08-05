@@ -9,6 +9,7 @@ export const DEFAULT_CATEGORIES = [
   "Education",
   "Subscriptions",
   "Travel",
+  "Loan / Borrowed",
   "Other",
 ] as const;
 
