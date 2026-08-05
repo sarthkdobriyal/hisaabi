@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
+import { ChevronDown, TriangleAlert } from "lucide-react";
 import { db, type Provider } from "@/lib/db";
 import { runTool } from "@/lib/tools";
-import { runChatTurn, type ToolOutcome } from "@/lib/chat";
+import { runChatTurn } from "@/lib/chat";
 import { DataResidencyBadge } from "@/components/DataResidencyBadge";
 import SetupScreen, { needsSetup } from "@/components/SetupScreen";
 import RecurringBillDue from "@/components/RecurringBillDue";
@@ -12,10 +13,13 @@ import SalaryDue from "@/components/SalaryDue";
 import { readProfile, readSettings, saveSettings } from "@/lib/store";
 import { dueBills, salaryDue } from "@/lib/recurring";
 import { PROVIDERS, providerMeta } from "@/lib/providers";
-
-interface Card extends ToolOutcome {
-  undone?: boolean;
-}
+import { MessageBubble, TypingIndicator } from "@/components/chat/MessageBubble";
+import { Composer } from "@/components/chat/Composer";
+import { EmptyState } from "@/components/chat/EmptyState";
+import { ConfirmCard, type ConfirmCardData } from "@/components/chat/ConfirmCard";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ChatPage() {
   const messages = useLiveQuery(() => db.chatMessages.orderBy("createdAt").toArray(), [], []);
@@ -25,15 +29,31 @@ export default function ChatPage() {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [rateLimited, setRateLimited] = useState(false);
-  const [cards, setCards] = useState<Card[]>([]);
+  const [cards, setCards] = useState<ConfirmCardData[]>([]);
+  const [atBottom, setAtBottom] = useState(true);
+  const listRef = useRef<HTMLDivElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
+  const nearBottom = useRef(true);
 
+  // Only auto-scroll when the user is already near the bottom — never yank
+  // them down mid-read when a background refresh adds a message.
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (nearBottom.current) endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, sending, cards]);
 
+  function onListScroll() {
+    const el = listRef.current;
+    if (!el) return;
+    nearBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+    setAtBottom(nearBottom.current);
+  }
+
+  function scrollToBottom() {
+    endRef.current?.scrollIntoView({ behavior: "smooth" });
+  }
+
   if (settings === null) {
-    return <div className="py-16 text-center text-sm text-slate-500">Loading…</div>;
+    return <ChatSkeleton />;
   }
   if (needsSetup(settings)) return <SetupScreen />;
 
@@ -67,7 +87,7 @@ export default function ChatPage() {
     setCards((c) => c.map((x, i) => (i === idx ? { ...x, undone: true } : x)));
   }
 
-  const empty = (messages?.length ?? 0) === 0;
+  const empty = messages.length === 0 && cards.length === 0;
   const due = profile ? dueBills(profile) : [];
   const dueSalary = profile ? salaryDue(profile) : null;
 
@@ -78,119 +98,75 @@ export default function ChatPage() {
       {dueSalary != null && <SalaryDue salary={dueSalary} currency={profile!.currency} />}
       {due.length > 0 && <RecurringBillDue bills={due} currency={profile!.currency} />}
 
-      <div className="flex flex-1 flex-col gap-3 overflow-y-auto">
+      <div
+        ref={listRef}
+        onScroll={onListScroll}
+        aria-live="polite"
+        className="flex flex-1 flex-col gap-3 overflow-y-auto"
+      >
         {empty && !sending ? (
-          <div className="flex flex-1 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-slate-300 p-10 text-center dark:border-slate-700">
-            <p className="text-lg font-medium">Log an expense by chatting.</p>
-            <p className="max-w-sm text-sm text-slate-500">
-              Try{" "}
-              <span className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-slate-700 dark:bg-slate-800 dark:text-slate-200">
-                spent 200 on coffee
-              </span>{" "}
-              or ask{" "}
-              <span className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-slate-700 dark:bg-slate-800 dark:text-slate-200">
-                how much on groceries this month?
-              </span>
-            </p>
-          </div>
+          <EmptyState onPick={setInput} />
         ) : (
-          messages?.map((m) => <Bubble key={m.id} role={m.role} content={m.content} />)
+          messages.map((m) => (
+            <MessageBubble key={m.id} role={m.role} content={m.content} createdAt={m.createdAt} />
+          ))
         )}
 
         {cards.map((card, i) => (
           <ConfirmCard key={`card-${i}`} card={card} onUndo={() => undo(i)} />
         ))}
 
-        {sending && <Bubble role="assistant" content="…" />}
+        {sending && <TypingIndicator />}
+
+        {!atBottom && (
+          <div className="sticky bottom-4 z-10 mt-1 flex justify-end pr-1">
+            <Button
+              type="button"
+              size="icon-sm"
+              variant="outline"
+              onClick={scrollToBottom}
+              aria-label="Scroll to latest"
+              className="rounded-full bg-background shadow-sm"
+            >
+              <ChevronDown />
+            </Button>
+          </div>
+        )}
+
         <div ref={endRef} />
       </div>
 
       {rateLimited && settings ? (
-        <RateLimitPopup message={error ?? ""} current={settings.provider} onSwitch={switchProvider} />
+        <RateLimitAlert message={error ?? ""} current={settings.provider} onSwitch={switchProvider} />
       ) : error ? (
-        <p className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300">
-          {error}
-        </p>
+        <Alert variant="destructive">
+          <TriangleAlert />
+          <AlertTitle>Something went wrong</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       ) : null}
 
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          void send();
-        }}
-        className="flex items-end gap-2"
-      >
-        <textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              void send();
-            }
-          }}
-          rows={1}
-          placeholder="spent 200 on coffee…"
-          className="flex-1 resize-none rounded-lg border border-slate-300 bg-background px-3.5 py-2.5 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 dark:border-slate-700"
-        />
-        <button
-          type="submit"
-          disabled={sending || !input.trim()}
-          className="inline-flex items-center justify-center brand-gradient rounded-lg px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:opacity-40"
-        >
-          Send
-        </button>
-      </form>
+      <Composer value={input} onChange={setInput} onSend={() => void send()} disabled={sending} />
     </div>
   );
 }
 
-function Bubble({ role, content }: { role: string; content: string }) {
-  const isUser = role === "user";
+function ChatSkeleton() {
   return (
-    <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
-      <div
-        className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm ${
-          isUser
-            ? "brand-gradient text-white"
-            : "border border-slate-200 bg-background dark:border-slate-800"
-        }`}
-      >
-        {content}
+    <div className="flex flex-1 flex-col gap-4">
+      <Skeleton className="h-10 w-full rounded-lg" />
+      <div className="flex flex-1 flex-col gap-3">
+        <Skeleton className="h-14 w-3/4 rounded-2xl" />
+        <Skeleton className="ml-auto h-10 w-1/2 rounded-2xl" />
+        <Skeleton className="h-14 w-2/3 rounded-2xl" />
       </div>
-    </div>
-  );
-}
-
-function ConfirmCard({ card, onUndo }: { card: Card; onUndo: () => void }) {
-  const label = card.name === "add_expense" ? "Expense added" : card.name === "add_income" ? "Income added" : null;
-  if (!label) return null;
-  const r = card.result as { amount?: number; category?: string; source?: string; date?: string };
-  const canUndo = card.name === "add_expense" && !card.undone;
-
-  return (
-    <div className="flex items-center gap-3 rounded-xl border border-brand/30 bg-brand/5 px-4 py-2.5 text-sm">
-      <span className="font-medium text-brand">{label}</span>
-      <span className={card.undone ? "text-slate-400 line-through" : "text-slate-600 dark:text-slate-300"}>
-        {r.amount} · {r.category ?? r.source} · {r.date}
-      </span>
-      {canUndo && (
-        <button
-          type="button"
-          onClick={onUndo}
-          className="ml-auto rounded-md border border-slate-300 px-2 py-1 text-xs font-medium transition hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-900"
-        >
-          Undo
-        </button>
-      )}
-      {card.undone && <span className="ml-auto text-xs text-slate-400">Undone</span>}
     </div>
   );
 }
 
 // Shown on HTTP 429 from any provider. A provider switch is the fastest way
 // back to a fresh quota; picking one without a saved key lands on SetupScreen.
-function RateLimitPopup({
+function RateLimitAlert({
   message,
   current,
   onSwitch,
@@ -201,22 +177,20 @@ function RateLimitPopup({
 }) {
   const options = PROVIDERS.filter((p) => p.id !== current && p.id !== "anthropic");
   return (
-    <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm dark:border-red-900/50 dark:bg-red-950/40">
-      <p className="font-medium text-red-700 dark:text-red-300">{message}</p>
-      <p className="mt-1 text-xs text-red-600/80 dark:text-red-400/80">Switch provider for a fresh quota:</p>
-      <div className="mt-3 flex flex-wrap gap-2">
+    <Alert variant="destructive">
+      <TriangleAlert />
+      <AlertTitle>You&apos;re rate limited</AlertTitle>
+      <AlertDescription>
+        {message} Switch provider for a fresh quota — needs a key only if you haven&apos;t saved one for
+        it.
+      </AlertDescription>
+      <div className="mt-2 flex flex-wrap gap-2">
         {options.map((p) => (
-          <button
-            key={p.id}
-            type="button"
-            onClick={() => onSwitch(p.id)}
-            className="rounded-lg border border-red-300 bg-white px-3 py-1.5 text-xs font-medium text-red-700 transition hover:bg-red-100 dark:border-red-900 dark:bg-red-950 dark:text-red-300 dark:hover:bg-red-900/60"
-          >
+          <Button key={p.id} type="button" variant="outline" size="xs" onClick={() => onSwitch(p.id)}>
             {p.label}
-          </button>
+          </Button>
         ))}
       </div>
-      <p className="mt-2 text-xs text-red-500/80">Needs a key only if you haven&apos;t saved one for it — then it opens setup.</p>
-    </div>
+    </Alert>
   );
 }
