@@ -211,18 +211,26 @@ export default function SettingsPage() {
             </Field>
 
             <Field label="Model">
-              <input
-                list="model-suggestions"
-                value={form.model}
-                onChange={(e) => patch({ model: e.target.value })}
-                placeholder={meta.defaultModel}
+              <select
+                value={meta.modelSuggestions.includes(form.model) ? form.model : "custom"}
+                onChange={(e) => e.target.value !== "custom" && patch({ model: e.target.value })}
                 className={inputCls}
-              />
-              <datalist id="model-suggestions">
+              >
                 {meta.modelSuggestions.map((m) => (
-                  <option key={m} value={m} />
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
                 ))}
-              </datalist>
+                <option value="custom">Custom…</option>
+              </select>
+              {!meta.modelSuggestions.includes(form.model) && (
+                <input
+                  value={form.model}
+                  onChange={(e) => patch({ model: e.target.value })}
+                  placeholder={meta.defaultModel}
+                  className={`${inputCls} font-mono`}
+                />
+              )}
             </Field>
           </div>
 

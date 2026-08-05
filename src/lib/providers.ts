@@ -1,5 +1,10 @@
 import type { Provider, Settings } from "./db";
 
+// Fixed OpenAI-compatible endpoints for providers that don't take a custom baseUrl.
+export const FIXED_BASE_URLS: Partial<Record<Provider, string>> = {
+  groq: "https://api.groq.com/openai/v1",
+};
+
 export interface ProviderMeta {
   id: Provider;
   label: string;
@@ -33,10 +38,19 @@ export const PROVIDERS: ProviderMeta[] = [
     id: "gemini",
     label: "Google Gemini",
     needsKey: true,
-    defaultModel: "gemini-2.0-flash",
-    modelSuggestions: ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"],
+    defaultModel: "gemini-flash-latest",
+    modelSuggestions: ["gemini-flash-latest", "gemini-1.5-flash", "gemini-1.5-pro"],
     keyHint: "AIza…",
     keyUrl: "https://aistudio.google.com/apikey",
+  },
+  {
+    id: "groq",
+    label: "Groq (free tier)",
+    needsKey: true,
+    defaultModel: "llama-3.3-70b-versatile",
+    modelSuggestions: ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "mixtral-8x7b-32768"],
+    keyHint: "gsk_…",
+    keyUrl: "https://console.groq.com/keys",
   },
   {
     id: "ollama",
@@ -68,6 +82,14 @@ export async function testConnection(s: Settings): Promise<TestResult> {
       });
       return r.ok
         ? { ok: true, message: s.baseUrl ? "Connected." : "Connected to OpenAI." }
+        : { ok: false, message: `Rejected (${r.status}).` };
+    }
+
+    if (s.provider === "groq") {
+      const base = FIXED_BASE_URLS[s.provider]!;
+      const r = await fetch(`${base}/models`, { headers: { Authorization: `Bearer ${s.apiKey}` } });
+      return r.ok
+        ? { ok: true, message: `Connected to ${providerMeta(s.provider).label}.` }
         : { ok: false, message: `Rejected (${r.status}).` };
     }
 

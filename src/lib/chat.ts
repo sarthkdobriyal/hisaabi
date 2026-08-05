@@ -2,6 +2,7 @@
 import { db } from "./db";
 import { getSettings } from "./store";
 import { assembleContext, runTool, TOOL_DEFS, type ChatContext } from "./tools";
+import { FIXED_BASE_URLS } from "./providers";
 
 // Client-side chat engine. Runs entirely browser → user's provider, with the
 // user's key. No backend. Non-streaming tool-call loop (streaming is a later
@@ -23,6 +24,7 @@ export interface TurnResult {
   reply: string;
   outcomes: ToolOutcome[]; // successful tool calls, for inline confirm cards
   error?: string;
+  rateLimited?: boolean; // true on HTTP 429 — chat UI offers a quick provider switch
 }
 
 type Msg =
@@ -55,6 +57,9 @@ export async function runChatTurn(userText: string): Promise<TurnResult> {
   }
   if (settings.provider === "gemini" && !settings.apiKey) {
     return { ok: false, reply: "", outcomes: [], error: "Add your Gemini API key in Settings first." };
+  }
+  if (settings.provider === "groq" && !settings.apiKey) {
+    return { ok: false, reply: "", outcomes: [], error: "Add your Groq API key in Settings first." };
   }
   // A custom base URL (proxy/gateway) may not require a key; the official
   // OpenAI endpoint always does.
@@ -90,7 +95,13 @@ export async function runChatTurn(userText: string): Promise<TurnResult> {
     }
     return { ok: false, reply: "", outcomes, error: "The assistant got stuck in a tool loop. Try rephrasing." };
   } catch (e) {
-    return { ok: false, reply: "", outcomes, error: friendlyError(e) };
+    return {
+      ok: false,
+      reply: "",
+      outcomes,
+      error: friendlyError(e),
+      rateLimited: e instanceof HttpError && e.status === 429,
+    };
   }
 }
 
@@ -121,16 +132,17 @@ type ResolvedSettings = Awaited<ReturnType<typeof getSettings>>;
 
 function callProvider(settings: ResolvedSettings, msgs: Msg[]): Promise<ProviderMessage> {
   if (settings.provider === "gemini") return callGemini(settings, msgs);
-  return callOpenAiCompatible(settings, msgs); // openai + ollama share this shape
+  return callOpenAiCompatible(settings, msgs); // openai + ollama + groq share this shape
 }
 
-// --- OpenAI-compatible provider call (OpenAI + Ollama) ---
+// --- OpenAI-compatible provider call (OpenAI, Ollama, Groq) ---
 
 async function callOpenAiCompatible(settings: ResolvedSettings, msgs: Msg[]): Promise<ProviderMessage> {
   const isOllama = settings.provider === "ollama";
+  const fixedBase = FIXED_BASE_URLS[settings.provider];
   const url = isOllama
     ? `${(settings.ollamaUrl || "http://localhost:11434").replace(/\/+$/, "")}/v1/chat/completions`
-    : `${(settings.baseUrl || "https://api.openai.com/v1").replace(/\/+$/, "")}/chat/completions`;
+    : `${(fixedBase || settings.baseUrl || "https://api.openai.com/v1").replace(/\/+$/, "")}/chat/completions`;
 
   const res = await fetch(url, {
     method: "POST",

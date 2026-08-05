@@ -2,12 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "@/lib/db";
+import { db, type Provider } from "@/lib/db";
 import { runTool } from "@/lib/tools";
 import { runChatTurn, type ToolOutcome } from "@/lib/chat";
 import { DataResidencyBadge } from "@/components/DataResidencyBadge";
 import SetupScreen, { needsSetup } from "@/components/SetupScreen";
-import { readSettings } from "@/lib/store";
+import { readSettings, saveSettings } from "@/lib/store";
+import { PROVIDERS, providerMeta } from "@/lib/providers";
 
 interface Card extends ToolOutcome {
   undone?: boolean;
@@ -19,6 +20,7 @@ export default function ChatPage() {
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [rateLimited, setRateLimited] = useState(false);
   const [cards, setCards] = useState<Card[]>([]);
   const endRef = useRef<HTMLDivElement>(null);
 
@@ -36,11 +38,21 @@ export default function ChatPage() {
     if (!text || sending) return;
     setInput("");
     setError(null);
+    setRateLimited(false);
     setSending(true);
     const res = await runChatTurn(text);
     setSending(false);
-    if (!res.ok && res.error) setError(res.error);
+    if (!res.ok && res.error) {
+      setError(res.error);
+      setRateLimited(!!res.rateLimited);
+    }
     if (res.outcomes.length) setCards((c) => [...c, ...res.outcomes]);
+  }
+
+  async function switchProvider(id: Provider) {
+    await saveSettings({ provider: id, model: providerMeta(id).defaultModel });
+    setError(null);
+    setRateLimited(false);
   }
 
   async function undo(idx: number) {
@@ -84,11 +96,13 @@ export default function ChatPage() {
         <div ref={endRef} />
       </div>
 
-      {error && (
+      {rateLimited && settings ? (
+        <RateLimitPopup message={error ?? ""} current={settings.provider} onSwitch={switchProvider} />
+      ) : error ? (
         <p className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300">
           {error}
         </p>
-      )}
+      ) : null}
 
       <form
         onSubmit={(e) => {
@@ -161,6 +175,39 @@ function ConfirmCard({ card, onUndo }: { card: Card; onUndo: () => void }) {
         </button>
       )}
       {card.undone && <span className="ml-auto text-xs text-slate-400">Undone</span>}
+    </div>
+  );
+}
+
+// Shown on HTTP 429 from any provider. A provider switch is the fastest way
+// back to a fresh quota; picking one without a saved key lands on SetupScreen.
+function RateLimitPopup({
+  message,
+  current,
+  onSwitch,
+}: {
+  message: string;
+  current: Provider;
+  onSwitch: (id: Provider) => void;
+}) {
+  const options = PROVIDERS.filter((p) => p.id !== current && p.id !== "anthropic");
+  return (
+    <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm dark:border-red-900/50 dark:bg-red-950/40">
+      <p className="font-medium text-red-700 dark:text-red-300">{message}</p>
+      <p className="mt-1 text-xs text-red-600/80 dark:text-red-400/80">Switch provider for a fresh quota:</p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {options.map((p) => (
+          <button
+            key={p.id}
+            type="button"
+            onClick={() => onSwitch(p.id)}
+            className="rounded-lg border border-red-300 bg-white px-3 py-1.5 text-xs font-medium text-red-700 transition hover:bg-red-100 dark:border-red-900 dark:bg-red-950 dark:text-red-300 dark:hover:bg-red-900/60"
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
+      <p className="mt-2 text-xs text-red-500/80">Needs a key only if you haven&apos;t saved one for it — then it opens setup.</p>
     </div>
   );
 }

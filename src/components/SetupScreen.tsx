@@ -12,11 +12,11 @@ import { readSettings, saveSettings } from "@/lib/store";
 export function needsSetup(s: Settings): boolean {
   if (s.provider === "ollama") return false; // local, no key needed
   if (s.provider === "anthropic") return true; // chat adapter not wired yet
-  if (s.provider === "gemini") return !s.apiKey;
-  return !s.apiKey && !s.baseUrl; // openai needs a key or a gateway URL
+  if (s.provider === "openai") return !s.apiKey && !s.baseUrl; // key or a gateway URL
+  return !s.apiKey; // gemini, groq all require a key
 }
 
-const CONFIGURABLE: Provider[] = ["openai", "gemini", "ollama"];
+const CONFIGURABLE: Provider[] = ["groq", "openai", "gemini", "ollama"];
 
 export default function SetupScreen() {
   const settings = useLiveQuery(() => readSettings(), [], null);
