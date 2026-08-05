@@ -14,10 +14,10 @@ export function needsSetup(s: Settings): boolean {
   if (s.provider === "anthropic") return true; // chat adapter not wired yet
   if (s.provider === "openai") return !s.apiKey && !s.baseUrl; // key or a gateway URL
   if (s.provider === "custom") return !s.baseUrl; // base URL required, key optional
-  return !s.apiKey; // gemini, groq, nvidia all require a key
+  return !s.apiKey; // gemini, groq all require a key
 }
 
-const CONFIGURABLE: Provider[] = ["groq", "openai", "gemini", "ollama", "nvidia", "custom"];
+const CONFIGURABLE: Provider[] = ["groq", "openai", "gemini", "ollama", "custom"];
 
 export default function SetupScreen() {
   const settings = useLiveQuery(() => readSettings(), [], null);

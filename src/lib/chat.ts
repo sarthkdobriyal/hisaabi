@@ -61,9 +61,6 @@ export async function runChatTurn(userText: string): Promise<TurnResult> {
   if (settings.provider === "groq" && !settings.apiKey) {
     return { ok: false, reply: "", outcomes: [], error: "Add your Groq API key in Settings first." };
   }
-  if (settings.provider === "nvidia" && !settings.apiKey) {
-    return { ok: false, reply: "", outcomes: [], error: "Add your NVIDIA API key in Settings first." };
-  }
   if (settings.provider === "custom" && !settings.baseUrl) {
     return { ok: false, reply: "", outcomes: [], error: "Add a base URL for your custom provider in Settings first." };
   }
@@ -138,7 +135,7 @@ type ResolvedSettings = Awaited<ReturnType<typeof getSettings>>;
 
 function callProvider(settings: ResolvedSettings, msgs: Msg[]): Promise<ProviderMessage> {
   if (settings.provider === "gemini") return callGemini(settings, msgs);
-  return callOpenAiCompatible(settings, msgs); // openai + ollama + groq + nvidia + custom share this shape
+  return callOpenAiCompatible(settings, msgs); // openai + ollama + groq + custom share this shape
 }
 
 // --- OpenAI-compatible provider call (OpenAI, Ollama, Groq) ---

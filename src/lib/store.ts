@@ -12,9 +12,9 @@ const DEFAULT_PROFILE: Profile = {
 
 const DEFAULT_SETTINGS: Settings = {
   id: SETTINGS_ID,
-  provider: "nvidia", // dev default — NVIDIA NIM build key; real key set once in Settings
+  provider: "ollama", // dev default — local Ollama needs no key; switch in Settings to a paid provider
   apiKey: "",
-  model: "nvidia/nemotron-3-super-120b-a12b",
+  model: "llama3.1",
 };
 
 export async function getProfile(): Promise<Profile> {

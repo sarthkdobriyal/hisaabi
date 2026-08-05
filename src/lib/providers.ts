@@ -3,7 +3,6 @@ import type { Provider, Settings } from "./db";
 // Fixed OpenAI-compatible endpoints for providers that don't take a custom baseUrl.
 export const FIXED_BASE_URLS: Partial<Record<Provider, string>> = {
   groq: "https://api.groq.com/openai/v1",
-  nvidia: "https://integrate.api.nvidia.com/v1",
 };
 
 export interface ProviderMeta {
@@ -64,19 +63,6 @@ export const PROVIDERS: ProviderMeta[] = [
     keyHint: "",
   },
   {
-    id: "nvidia",
-    label: "NVIDIA NIM",
-    needsKey: true,
-    defaultModel: "nvidia/nemotron-3-super-120b-a12b",
-    modelSuggestions: [
-      "nvidia/nemotron-3-super-120b-a12b",
-      "meta/llama-3.3-70b-instruct",
-      "meta/llama-3.1-405b-instruct",
-    ],
-    keyHint: "nvapi-…",
-    keyUrl: "https://org.ngc.nvidia.com/setup/api-key",
-  },
-  {
     id: "custom",
     label: "Custom (OpenAI-compatible)",
     needsKey: true, // key optional at call time, but needs the key/base-URL settings block
@@ -109,7 +95,7 @@ export async function testConnection(s: Settings): Promise<TestResult> {
         : { ok: false, message: `Rejected (${r.status}).` };
     }
 
-    if (s.provider === "groq" || s.provider === "nvidia") {
+    if (s.provider === "groq") {
       const base = FIXED_BASE_URLS[s.provider]!;
       const r = await fetch(`${base}/models`, { headers: { Authorization: `Bearer ${s.apiKey}` } });
       return r.ok

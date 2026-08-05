@@ -298,7 +298,7 @@ export default function SettingsPage() {
                   />
                   <p className="text-xs text-slate-500">
                     {form.provider === "custom"
-                      ? "Any OpenAI-compatible endpoint (NVIDIA NIM, OpenRouter, LiteLLM, a local server…). API key is optional."
+                      ? "Any OpenAI-compatible endpoint (OpenRouter, LiteLLM, a local server…). API key is optional. The endpoint must allow browser requests (CORS)."
                       : "Point at an OpenAI-compatible proxy or gateway (OpenRouter, LiteLLM, Omniroute, etc.) instead of OpenAI directly. Leave blank to use OpenAI."}
                   </p>
                 </Field>
