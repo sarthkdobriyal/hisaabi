@@ -613,38 +613,46 @@ export default function SettingsPage() {
               <div className="grid gap-3">
                 {profileForm.recurringBills.map((bill, i) => (
                   <div key={i} className="grid gap-3 rounded-xl border border-white/10 p-3 sm:grid-cols-[1fr_8rem_7rem_auto]">
-                    <input
-                      value={bill.name}
-                      onChange={(e) => setBill(i, { name: e.target.value })}
-                      placeholder="Rent"
-                      className={inputCls}
-                    />
-                    <input
-                      type="number"
-                      min="0"
-                      value={bill.amount || ""}
-                      onChange={(e) => setBill(i, { amount: Number(e.target.value) })}
-                      placeholder="Amount"
-                      className={inputCls}
-                    />
-                    <input
-                      type="number"
-                      min="1"
-                      max="31"
-                      value={bill.dayOfMonth || ""}
-                      onChange={(e) => setBill(i, { dayOfMonth: Number(e.target.value) })}
-                      placeholder="Day"
-                      className={inputCls}
-                    />
-                    <button
-                      type="button"
-                      onClick={() =>
-                        patchProfile({ recurringBills: profileForm.recurringBills.filter((_, index) => index !== i) })
-                      }
-                      className={btnGhost}
-                    >
-                      Remove
-                    </button>
+                    <Field label="Bill name">
+                      <input
+                        value={bill.name}
+                        onChange={(e) => setBill(i, { name: e.target.value })}
+                        placeholder="e.g. Rent"
+                        className={inputCls}
+                      />
+                    </Field>
+                    <Field label="Amount">
+                      <input
+                        type="number"
+                        min="0"
+                        value={bill.amount || ""}
+                        onChange={(e) => setBill(i, { amount: Number(e.target.value) })}
+                        placeholder="5000"
+                        className={inputCls}
+                      />
+                    </Field>
+                    <Field label="Due day (1-31)">
+                      <input
+                        type="number"
+                        min="1"
+                        max="31"
+                        value={bill.dayOfMonth || ""}
+                        onChange={(e) => setBill(i, { dayOfMonth: Number(e.target.value) })}
+                        placeholder="1"
+                        className={inputCls}
+                      />
+                    </Field>
+                    <div className="flex items-end">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          patchProfile({ recurringBills: profileForm.recurringBills.filter((_, index) => index !== i) })
+                        }
+                        className={btnGhost}
+                      >
+                        Remove
+                      </button>
+                    </div>
                   </div>
                 ))}
                 {!profileForm.recurringBills.length && (

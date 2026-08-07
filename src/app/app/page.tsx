@@ -39,12 +39,17 @@ export default function ChatPage() {
   const endRef = useRef<HTMLDivElement>(null);
   const nearBottom = useRef(true);
 
-  // Only auto-scroll when the user is already near the bottom — never yank
-  // them down mid-read when a background refresh adds a message.
+  const mounted = useRef(false);
+
   useEffect(() => {
-    // Landing is instant, not smooth: smooth races with late layout (swap-in
-    // fonts, images) and stops short of the bottom. Re-scroll once fonts are
-    // applied so a hard reload always lands on the latest message.
+    if (!mounted.current && messages.length > 0) {
+      mounted.current = true;
+      requestAnimationFrame(() => {
+        endRef.current?.scrollIntoView({ behavior: "auto" });
+        document.fonts.ready.then(() => endRef.current?.scrollIntoView({ behavior: "auto" }));
+      });
+      return;
+    }
     if (!nearBottom.current) return;
     endRef.current?.scrollIntoView({ behavior: "auto" });
     document.fonts.ready.then(() => endRef.current?.scrollIntoView({ behavior: "auto" }));
