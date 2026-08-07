@@ -6,6 +6,7 @@ import {
   CalendarClock,
   ShieldCheck,
   WifiOff,
+  LockKeyhole,
 } from "lucide-react";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { MarketingHeader } from "@/components/marketing/MarketingHeader";
@@ -39,6 +40,11 @@ const FEATURES = [
     body: "Every expense lives in your browser. No account, no server, no cloud sync — ever.",
   },
   {
+    icon: LockKeyhole,
+    title: "Encrypted when locked",
+    body: "Set a passcode and your data is sealed with AES-256 encryption whenever the app is locked — with automatic lock after a few idle minutes.",
+  },
+  {
     icon: WifiOff,
     title: "Offline PWA",
     body: "Install it like an app. Log and review spending offline; the shell works without a connection.",
@@ -59,6 +65,10 @@ const FAQ = [
   {
     q: "Where is my financial data stored?",
     a: "Entirely in your browser using IndexedDB. There’s no account, no server, and no cloud sync. The only outbound network call is from your browser to your chosen AI provider when you chat.",
+  },
+  {
+    q: "Is my data encrypted?",
+    a: "You can turn on an optional passcode lock in Settings. It encrypts your expenses, income, profile, memories and chat with AES-256-GCM, and the key is derived from your passcode via PBKDF2 (600,000 iterations) and never stored. While the app is locked, only unreadable ciphertext remains on your device, with auto-lock after a few idle minutes. Encrypted backups with the same passcode are included.",
   },
   {
     q: "Do I need to create an account?",
@@ -195,6 +205,73 @@ export default function Home() {
             the prompt you send to your own AI provider when you chat — and nothing at all with local
             Ollama. Open the Network tab and see for yourself.
           </p>
+          <div className="mx-auto mt-6 flex max-w-md flex-wrap items-center justify-center gap-3 text-sm">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-brand/30 bg-background px-3 py-1.5 font-medium text-muted-foreground">
+              <LockKeyhole className="size-3.5 text-brand" /> Optional passcode lock
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-brand/30 bg-background px-3 py-1.5 font-medium text-muted-foreground">
+              AES-256 encryption at rest
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-brand/30 bg-background px-3 py-1.5 font-medium text-muted-foreground">
+              Auto-lock · Encrypted backups
+            </span>
+          </div>
+          <p className="mt-6 text-sm text-muted-foreground">
+            Want the details? We wrote the whole thing up —{" "}
+            <Link href="/blog/how-hisaabi-encrypts-your-data" className="font-medium text-brand hover:underline">
+              the technical deep dive
+            </Link>
+            ,{" "}
+            <Link href="/blog/what-data-stays-on-your-device-means" className="font-medium text-brand hover:underline">
+              what that means in practice
+            </Link>
+            , and{" "}
+            <Link href="/blog/why-hisaabi-keeps-your-data-local" className="font-medium text-brand hover:underline">
+              why it&apos;s built this way
+            </Link>
+            .
+          </p>
+        </div>
+      </section>
+
+      {/* Security stories */}
+      <section className="mx-auto w-full max-w-5xl px-6 py-16">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="text-3xl font-bold tracking-tight">How we keep your data safe</h2>
+          <p className="mt-3 text-muted-foreground">
+            Three posts, one honest story: where your money data lives, how it&apos;s locked, and what that
+            really protects.
+          </p>
+        </div>
+        <div className="mt-12 grid gap-6 sm:grid-cols-3">
+          {[
+            {
+              href: "/blog/why-hisaabi-keeps-your-data-local",
+              title: "Why Hisaabi keeps your money data local",
+              body: "The copy problem with cloud trackers, and the fix that doesn't need a server.",
+            },
+            {
+              href: "/blog/how-hisaabi-encrypts-your-data",
+              title: "AES-256-GCM & PBKDF2, explained",
+              body: "The full technical breakdown of the passcode lock — for people who like receipts.",
+            },
+            {
+              href: "/blog/what-data-stays-on-your-device-means",
+              title: "What 'data stays on your device' means",
+              body: "The safe-in-your-pocket test, and what encryption can and can't do for you.",
+            },
+          ].map((p) => (
+            <Link
+              key={p.href}
+              href={p.href}
+              className="group rounded-2xl border border-border bg-card p-6 shadow-sm transition hover:border-brand/40"
+            >
+              <LockKeyhole className="size-5 text-brand" />
+              <h3 className="mt-4 text-lg font-semibold transition-colors group-hover:text-brand">{p.title}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">{p.body}</p>
+              <p className="mt-4 text-sm font-medium text-brand">Read the post →</p>
+            </Link>
+          ))}
         </div>
       </section>
 

@@ -73,10 +73,26 @@ export interface Settings {
   model: string;
   ollamaUrl?: string;
   baseUrl?: string; // OpenAI provider only: override for a proxy/gateway (OpenRouter, LiteLLM, etc.)
+  encryptionEnabled?: boolean; // passcode-lock encrypts the sensitive stores at rest
+  lockAfterMinutes?: number; // auto-lock idle timeout (0 = never)
+}
+
+// Single-record table (id = 1). Holds the AES-GCM-encrypted snapshot of all
+// sensitive stores (expenses, income, profile, memories, chatMessages). This
+// is the only form in which data rests when the app is locked.
+export interface VaultRecord {
+  id: number;
+  salt: string; // base64, random PBKDF2 salt (stable per key so the passcode re-derives it)
+  iterations: number; // PBKDF2 iteration count used at derive time
+  iv: string; // base64 AES-GCM nonce
+  data: string; // base64 ciphertext of the JSON snapshot
+  version: number; // snapshot schema version
+  updatedAt: string; // ISO timestamp
 }
 
 export const PROFILE_ID = 1;
 export const SETTINGS_ID = 1;
+export const VAULT_ID = 1;
 
 const db = new Dexie("hisaabi") as Dexie & {
   expenses: EntityTable<Expense, "id">;
@@ -85,6 +101,7 @@ const db = new Dexie("hisaabi") as Dexie & {
   memories: EntityTable<Memory, "id">;
   chatMessages: EntityTable<ChatMessage, "id">;
   settings: EntityTable<Settings, "id">;
+  vault: EntityTable<VaultRecord, "id">;
 };
 
 db.version(1).stores({
@@ -94,6 +111,16 @@ db.version(1).stores({
   memories: "++id, createdAt",
   chatMessages: "++id, createdAt",
   settings: "id",
+});
+
+db.version(2).stores({
+  expenses: "++id, date, category, createdAt",
+  income: "++id, date, createdAt",
+  profile: "id",
+  memories: "++id, createdAt",
+  chatMessages: "++id, createdAt",
+  settings: "id",
+  vault: "id",
 });
 
 export { db };

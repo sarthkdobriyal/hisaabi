@@ -13,6 +13,28 @@ import {
   importJson,
   wipeAll,
 } from "@/lib/backup";
+import {
+  changePasscode,
+  configureAutoLock,
+  disableEncryption,
+  enableEncryption,
+  exportEncryptedBackup,
+  getLockAfterMinutes,
+  getVaultStatus,
+  importEncryptedBackup,
+  lock,
+  onVaultStatusChange,
+} from "@/lib/vault";
+import { LockKeyhole, ShieldCheck } from "lucide-react";
+
+const AUTO_LOCK_OPTIONS = [
+  { value: 1, label: "1 minute" },
+  { value: 5, label: "5 minutes" },
+  { value: 15, label: "15 minutes" },
+  { value: 30, label: "30 minutes" },
+  { value: 60, label: "60 minutes" },
+  { value: 0, label: "Never (not recommended)" },
+];
 
 type FormState = Pick<Settings, "provider" | "model" | "apiKey" | "ollamaUrl" | "baseUrl">;
 type ProfileForm = Pick<Profile, "salary" | "salaryDate" | "budgetGoals" | "recurringBills" | "customCategories">;
@@ -56,6 +78,27 @@ export default function SettingsPage() {
   const [persisted, setPersisted] = useState<boolean | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [confirmWipe, setConfirmWipe] = useState(false);
+
+  const [vaultStatus, setVaultStatus] = useState(getVaultStatus());
+  const [lockMins, setLockMins] = useState(getLockAfterMinutes());
+  const [showEnableForm, setShowEnableForm] = useState(false);
+  const [enableForm, setEnableForm] = useState({ passcode: "", confirm: "" });
+  const [showChangeForm, setShowChangeForm] = useState(false);
+  const [changeForm, setChangeForm] = useState({ current: "", next: "", confirm: "" });
+  const [confirmDisable, setConfirmDisable] = useState(false);
+  const [encBusy, setEncBusy] = useState<string | null>(null);
+  const [encError, setEncError] = useState<string | null>(null);
+  const [encSuccess, setEncSuccess] = useState<string | null>(null);
+  const [encExportPass, setEncExportPass] = useState("");
+  const [encImportPass, setEncImportPass] = useState("");
+
+  useEffect(() => {
+    const off = onVaultStatusChange(() => {
+      setVaultStatus(getVaultStatus());
+      setLockMins(getLockAfterMinutes());
+    });
+    return off;
+  }, []);
 
   useEffect(() => {
     void (async () => {
@@ -178,6 +221,112 @@ export default function SettingsPage() {
     setForm(toFormState(s));
     setProfileForm(toProfileForm(p));
     setCurrencyState(p.currency);
+  }
+
+  // ---- encryption ----
+
+  function encMessage(msg: string | null) {
+    setEncError(msg);
+    if (msg) setEncSuccess(null);
+  }
+
+  async function onEnableEncryption() {
+    setEncBusy("enable");
+    setEncError(null);
+    setEncSuccess(null);
+    try {
+      if (enableForm.passcode.length < 4) throw new Error("Passcode must be at least 4 characters.");
+      if (enableForm.passcode !== enableForm.confirm) throw new Error("Passcodes don't match.");
+      await enableEncryption(enableForm.passcode, lockMins);
+      setShowEnableForm(false);
+      setEnableForm({ passcode: "", confirm: "" });
+    } catch (e) {
+      encMessage(e instanceof Error ? e.message : "Could not enable encryption.");
+    } finally {
+      setEncBusy(null);
+    }
+  }
+
+  async function onChangePasscode() {
+    setEncBusy("change");
+    setEncError(null);
+    setEncSuccess(null);
+    try {
+      if (changeForm.next.length < 4) throw new Error("New passcode must be at least 4 characters.");
+      if (changeForm.next !== changeForm.confirm) throw new Error("New passcodes don't match.");
+      await changePasscode(changeForm.current, changeForm.next);
+      setShowChangeForm(false);
+      setChangeForm({ current: "", next: "", confirm: "" });
+      setEncSuccess("Passcode changed.");
+    } catch (e) {
+      encMessage(e instanceof Error ? e.message : "Could not change passcode.");
+    } finally {
+      setEncBusy(null);
+    }
+  }
+
+  async function onDisableEncryption() {
+    setEncBusy("disable");
+    setEncError(null);
+    setEncSuccess(null);
+    try {
+      await disableEncryption();
+      setConfirmDisable(false);
+      setEncSuccess("Encryption turned off. Data is now stored without a passcode.");
+    } catch (e) {
+      encMessage(e instanceof Error ? e.message : "Could not disable encryption.");
+    } finally {
+      setEncBusy(null);
+    }
+  }
+
+  async function onLockNow() {
+    setEncBusy("lock");
+    setEncError(null);
+    await lock();
+    setEncBusy(null);
+  }
+
+  function onAutoLockChange(value: string) {
+    const minutes = Number(value);
+    setLockMins(minutes);
+    configureAutoLock(minutes);
+  }
+
+  async function onExportEncrypted() {
+    setEncBusy("export");
+    setEncError(null);
+    setEncSuccess(null);
+    try {
+      const json = await exportEncryptedBackup(encExportPass);
+      download(`hisaabi-vault-${today()}.hisaabi`, json, "application/json");
+      setEncExportPass("");
+      setEncSuccess("Encrypted backup downloaded. Keep your passcode safe with it.");
+    } catch (e) {
+      encMessage(e instanceof Error ? e.message : "Could not export encrypted backup.");
+    } finally {
+      setEncBusy(null);
+    }
+  }
+
+  async function onImportEncrypted(file: File) {
+    setEncBusy("import");
+    setEncError(null);
+    setEncSuccess(null);
+    try {
+      const text = await file.text();
+      await importEncryptedBackup(text, encImportPass);
+      setEncImportPass("");
+      setEncSuccess("Encrypted backup restored.");
+      const [s, p] = await Promise.all([getSettings(), getProfile()]);
+      setForm(toFormState(s));
+      setProfileForm(toProfileForm(p));
+      setCurrencyState(p.currency);
+    } catch (e) {
+      encMessage(e instanceof Error ? e.message : "Could not import encrypted backup.");
+    } finally {
+      setEncBusy(null);
+    }
   }
 
   return (
@@ -484,6 +633,222 @@ export default function SettingsPage() {
             </button>
             {profileSaved && <span className="text-sm font-medium text-brand-600">Saved.</span>}
           </div>
+        </div>
+      </Section>
+
+      {/* Security & encryption */}
+      <Section
+        title="Security & encryption"
+        subtitle="Lock your data behind a passcode. While locked, it's AES-256 encrypted on this device."
+      >
+        <div className="grid gap-5">
+          {vaultStatus === "disabled" ? (
+            <div className="grid gap-4">
+              <div className="flex flex-wrap items-center gap-3 rounded-xl bg-slate-50 px-4 py-3 text-sm dark:bg-slate-900/50">
+                <LockKeyhole className="size-4 text-slate-400" />
+                <span>
+                  Encryption is <strong>off</strong>. Your data is stored on this device, but unencrypted.
+                </span>
+              </div>
+              {showEnableForm ? (
+                <div className="grid gap-3 rounded-xl border border-amber-200 bg-amber-50/50 p-4 dark:border-amber-900/60 dark:bg-amber-950/20">
+                  <p className="text-xs text-amber-800 dark:text-amber-200">
+                    <strong>Important:</strong> the passcode is never stored and can&apos;t be recovered. If you
+                    forget it, your data stays permanently encrypted. Export a backup first. Enabling locks the app
+                    immediately.
+                  </p>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <Field label="Passcode">
+                      <input
+                        type="password"
+                        value={enableForm.passcode}
+                        onChange={(e) => setEnableForm((f) => ({ ...f, passcode: e.target.value }))}
+                        placeholder="At least 4 characters"
+                        autoComplete="new-password"
+                        className={inputCls}
+                      />
+                    </Field>
+                    <Field label="Confirm passcode">
+                      <input
+                        type="password"
+                        value={enableForm.confirm}
+                        onChange={(e) => setEnableForm((f) => ({ ...f, confirm: e.target.value }))}
+                        placeholder="Repeat passcode"
+                        autoComplete="new-password"
+                        className={inputCls}
+                      />
+                    </Field>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button type="button" onClick={onEnableEncryption} disabled={encBusy === "enable"} className={btnPrimary}>
+                      {encBusy === "enable" ? "Encrypting…" : "Enable encryption & lock"}
+                    </button>
+                    <button type="button" onClick={() => setShowEnableForm(false)} className={btnGhost}>
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button type="button" onClick={() => setShowEnableForm(true)} className={btnGhost}>
+                  Enable passcode lock
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              <div className="flex flex-wrap items-center gap-3 rounded-xl bg-brand/5 px-4 py-3 text-sm">
+                <ShieldCheck className="size-4 text-brand" />
+                <span>
+                  Encryption is <strong className="text-brand">on</strong> ·{" "}
+                  <strong>unlocked</strong> for this session.
+                </span>
+                <button
+                  type="button"
+                  onClick={onLockNow}
+                  disabled={encBusy === "lock"}
+                  className={`${btnGhost} ml-auto`}
+                >
+                  {encBusy === "lock" ? "Locking…" : "Lock now"}
+                </button>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Field label="Auto-lock after">
+                  <select value={lockMins} onChange={(e) => onAutoLockChange(e.target.value)} className={inputCls}>
+                    {AUTO_LOCK_OPTIONS.map((o) => (
+                      <option key={o.value} value={o.value}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <button type="button" onClick={() => setShowChangeForm((v) => !v)} className={btnGhost}>
+                  Change passcode
+                </button>
+                {confirmDisable ? (
+                  <span className="flex flex-wrap items-center gap-2">
+                    <span className="text-sm font-medium text-red-700 dark:text-red-400">
+                      Turn off encryption? Data stays, unencrypted.
+                    </span>
+                    <button
+                      type="button"
+                      onClick={onDisableEncryption}
+                      disabled={encBusy === "disable"}
+                      className={btnDanger}
+                    >
+                      {encBusy === "disable" ? "Turning off…" : "Yes, turn off"}
+                    </button>
+                    <button type="button" onClick={() => setConfirmDisable(false)} className={btnGhost}>
+                      Cancel
+                    </button>
+                  </span>
+                ) : (
+                  <button type="button" onClick={() => setConfirmDisable(true)} className={btnDanger}>
+                    Disable encryption
+                  </button>
+                )}
+              </div>
+
+              {showChangeForm && (
+                <div className="grid gap-3 rounded-xl border border-slate-200 p-4 dark:border-slate-800">
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    <Field label="Current passcode">
+                      <input
+                        type="password"
+                        value={changeForm.current}
+                        onChange={(e) => setChangeForm((f) => ({ ...f, current: e.target.value }))}
+                        autoComplete="current-password"
+                        className={inputCls}
+                      />
+                    </Field>
+                    <Field label="New passcode">
+                      <input
+                        type="password"
+                        value={changeForm.next}
+                        onChange={(e) => setChangeForm((f) => ({ ...f, next: e.target.value }))}
+                        autoComplete="new-password"
+                        className={inputCls}
+                      />
+                    </Field>
+                    <Field label="Confirm new">
+                      <input
+                        type="password"
+                        value={changeForm.confirm}
+                        onChange={(e) => setChangeForm((f) => ({ ...f, confirm: e.target.value }))}
+                        autoComplete="new-password"
+                        className={inputCls}
+                      />
+                    </Field>
+                  </div>
+                  <div className="flex gap-2">
+                    <button type="button" onClick={onChangePasscode} disabled={encBusy === "change"} className={btnPrimary}>
+                      {encBusy === "change" ? "Changing…" : "Save new passcode"}
+                    </button>
+                    <button type="button" onClick={() => setShowChangeForm(false)} className={btnGhost}>
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div className="grid gap-3 rounded-xl border border-slate-200 p-4 dark:border-slate-800">
+                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">Encrypted backups</h3>
+                <p className="text-xs text-slate-500">
+                  Restore these with the same passcode — on any device or browser. Keep the passcode and file together.
+                </p>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <Field label="Passcode for backup">
+                    <input
+                      type="password"
+                      value={encExportPass}
+                      onChange={(e) => setEncExportPass(e.target.value)}
+                      autoComplete="off"
+                      className={inputCls}
+                    />
+                  </Field>
+                  <Field label="Restore file">
+                    <label className={`${btnGhost} cursor-pointer`}>
+                      {encBusy === "import" ? "Restoring…" : "Restore encrypted backup"}
+                      <input
+                        type="file"
+                        accept="application/json,.hisaabi"
+                        className="hidden"
+                        onChange={(e) => {
+                          const f = e.target.files?.[0];
+                          if (f) void onImportEncrypted(f);
+                          e.target.value = "";
+                        }}
+                      />
+                    </label>
+                  </Field>
+                </div>
+                <Field label="Passcode to restore">
+                  <input
+                    type="password"
+                    value={encImportPass}
+                    onChange={(e) => setEncImportPass(e.target.value)}
+                    placeholder="Passcode of the backup file"
+                    autoComplete="off"
+                    className={inputCls}
+                  />
+                </Field>
+                <button
+                  type="button"
+                  onClick={onExportEncrypted}
+                  disabled={encBusy === "export" || !encExportPass}
+                  className={`${btnGhost} w-fit`}
+                >
+                  {encBusy === "export" ? "Encrypting…" : "Export encrypted backup"}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {encError && <p className="text-sm font-medium text-red-600">{encError}</p>}
+          {encSuccess && <p className="text-sm font-medium text-brand-600">{encSuccess}</p>}
         </div>
       </Section>
 

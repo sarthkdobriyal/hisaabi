@@ -9,6 +9,7 @@ export type BlogPost = {
   readTime: string;
   author: string;
   image?: "short" | "medium" | "tall";
+  cover?: string; // image URL/path shown on the blog card and post hero
   quote?: boolean;
 };
 

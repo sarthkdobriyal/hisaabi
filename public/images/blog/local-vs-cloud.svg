@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 430" role="img" aria-label="Where does your money data live? Most finance apps store your spending on their servers; Hisaabi keeps it on your device.">
+  <style>
+    .title { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 21px; font-weight: 700; fill: #0f172a; }
+    .card-title { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 17px; font-weight: 700; fill: #0f172a; }
+    .card-body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 13px; fill: #475569; }
+    .badge { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 11.5px; font-weight: 700; }
+    .card { fill: #ffffff; stroke: #e2e8f0; stroke-width: 1.5; }
+    @media (prefers-color-scheme: dark) {
+      .title { fill: #f1f5f9; }
+      .card-title { fill: #f1f5f9; }
+      .card-body { fill: #cbd5e1; }
+      .card { fill: #1e293b; stroke: #334155; }
+    }
+  </style>
+
+  <text x="400" y="44" text-anchor="middle" class="title">Where does your money data live?</text>
+
+  <!-- Left card: typical cloud finance app -->
+  <g>
+    <rect x="40" y="78" width="340" height="312" rx="20" class="card"/>
+    <circle cx="116" cy="138" r="28" fill="rgba(220,38,38,0.12)" stroke="rgba(220,38,38,0.35)"/>
+    <path transform="translate(92 114) scale(1)" fill="#dc2626" d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>
+    <text x="196" y="146" class="card-title">Most finance apps</text>
+    <text class="card-body">
+      <tspan x="70" y="204">Your spending is copied to a</tspan>
+      <tspan x="70" dy="18">company&apos;s servers, merged into</tspan>
+      <tspan x="70" dy="18">marketing and loan profiles, and</tspan>
+      <tspan x="70" dy="18">kept for years. That copy exists</tspan>
+      <tspan x="70" dy="18">even if you delete the app — and</tspan>
+      <tspan x="70" dy="18">it&apos;s only as safe as their security.</tspan>
+    </text>
+    <rect x="70" y="330" width="280" height="30" rx="15" fill="rgba(220,38,38,0.12)"/>
+    <text x="210" y="350" text-anchor="middle" class="badge" fill="#b91c1c">On their servers — out of your hands</text>
+  </g>
+
+  <!-- Right card: Hisaabi -->
+  <g>
+    <rect x="420" y="78" width="340" height="312" rx="20" class="card"/>
+    <circle cx="496" cy="138" r="28" fill="rgba(13,148,136,0.12)" stroke="rgba(13,148,136,0.35)"/>
+    <path transform="translate(472 114) scale(1)" fill="#0d9488" d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+    <text x="576" y="146" class="card-title">Hisaabi</text>
+    <text class="card-body">
+      <tspan x="450" y="204">Everything stays in your browser.</tspan>
+      <tspan x="450" dy="18">There is no server to receive it and</tspan>
+      <tspan x="450" dy="18">nothing to leak. Set a passcode and</tspan>
+      <tspan x="450" dy="18">your data is sealed with AES-256</tspan>
+      <tspan x="450" dy="18">encryption whenever the app is</tspan>
+      <tspan x="450" dy="18">locked — no account, no cloud, ever.</tspan>
+    </text>
+    <rect x="450" y="330" width="280" height="30" rx="15" fill="rgba(13,148,136,0.12)"/>
+    <text x="590" y="350" text-anchor="middle" class="badge" fill="#0d9488">On your device — encrypted when locked</text>
+  </g>
+</svg>

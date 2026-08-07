@@ -53,6 +53,47 @@ export default function PrivacyPage() {
           backup.
         </p>
 
+        <h2 className="mt-10 text-xl font-semibold">Encryption (optional, but recommended)</h2>
+        <p className="mt-3 text-muted-foreground">
+          You can lock the app with a passcode in <strong>Settings → Security &amp; encryption</strong>.
+          When enabled, the sensitive stores (expenses, income, profile, memories, chat) are encrypted
+          at rest with <strong>AES-256-GCM</strong>. The encryption key is derived from your passcode
+          with <strong>PBKDF2-HMAC-SHA256 at 600,000 iterations</strong> and a random salt, and it is
+          never stored on the device — it exists only in memory while you&apos;re unlocked.
+        </p>
+        <ul className="mt-4 flex list-disc flex-col gap-2 pl-6 text-muted-foreground">
+          <li>
+            <strong>While locked, only unreadable ciphertext remains</strong> on your device. The
+            plaintext working copies are wiped on lock, refresh, and app close.
+          </li>
+          <li>
+            <strong>Auto-lock</strong> seals the app after a configurable idle time (default 15
+            minutes), so an unlocked device doesn&apos;t stay open indefinitely.
+          </li>
+          <li>
+            <strong>Encrypted backups</strong> use the same passcode, so a backup is exactly as safe —
+            and exactly as recoverable — as the passcode you remember.
+          </li>
+          <li>
+            <strong>A lost passcode means unrecoverable data.</strong> By design there is no backdoor,
+            no reset, no server to ask. Export a backup before you enable encryption.
+          </li>
+        </ul>
+        <p className="mt-3 text-muted-foreground">
+          Encryption protects data <strong>at rest</strong> — device off or app locked. It does not
+          protect against someone using your already-unlocked browser, a keylogger, or a weak
+          passcode; we state this plainly rather than overclaiming. For the full technical details,
+          read{" "}
+          <Link href="/blog/how-hisaabi-encrypts-your-data" className="text-brand hover:underline">
+            AES-256-GCM and PBKDF2: how Hisaabi encrypts your data
+          </Link>
+          , or the non-technical version,{" "}
+          <Link href="/blog/what-data-stays-on-your-device-means" className="text-brand hover:underline">
+            what &ldquo;your data stays on your device&rdquo; actually means
+          </Link>
+          .
+        </p>
+
         <h2 className="mt-10 text-xl font-semibold">Prove it yourself</h2>
         <p className="mt-3 text-muted-foreground">
           Open <Link href="/app" className="text-brand hover:underline">the app</Link>, open

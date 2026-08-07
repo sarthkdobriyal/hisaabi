@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" role="img" aria-label="What happens when you lock Hisaabi: your plaintext data is encrypted with AES-256-GCM into a single blob, and the key is derived from your passcode via PBKDF2 and never stored.">
+  <style>
+    .title { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 21px; font-weight: 700; fill: #0f172a; }
+    .box-title { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 14px; font-weight: 700; fill: #0f172a; }
+    .box-body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 12px; fill: #475569; }
+    .kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; fill: #0f172a; }
+    .box { fill: #ffffff; stroke: #e2e8f0; stroke-width: 1.5; }
+    .box-key { fill: rgba(13,148,136,0.08); stroke: #0d9488; stroke-width: 1.5; }
+    .arrow { stroke: #94a3b8; stroke-width: 2; }
+    @media (prefers-color-scheme: dark) {
+      .title { fill: #f1f5f9; }
+      .box-title { fill: #f1f5f9; }
+      .box-body { fill: #cbd5e1; }
+      .kbd { fill: #e2e8f0; }
+      .box { fill: #1e293b; stroke: #334155; }
+    }
+  </style>
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <text x="400" y="42" text-anchor="middle" class="title">What happens when you lock Hisaabi</text>
+
+  <!-- Step 1 -->
+  <g>
+    <rect x="40" y="74" width="200" height="108" rx="16" class="box"/>
+    <text x="60" y="100" class="box-title">1 · In use</text>
+    <text class="box-body">
+      <tspan x="60" y="122">Your expenses, income</tspan>
+      <tspan x="60" dy="16">and chat sit in local</tspan>
+      <tspan x="60" dy="16">tables, plaintext, so</tspan>
+      <tspan x="60" dy="16">the app can query them.</tspan>
+    </text>
+  </g>
+  <line x1="244" y1="128" x2="286" y2="128" class="arrow" marker-end="url(#arrow)"/>
+
+  <!-- Step 2 -->
+  <g>
+    <rect x="290" y="74" width="200" height="108" rx="16" class="box"/>
+    <text x="310" y="100" class="box-title">2 · Lock</text>
+    <text class="box-body">
+      <tspan x="310" y="122">AES-256-GCM encrypts</tspan>
+      <tspan x="310" dy="16">everything into one</tspan>
+      <tspan x="310" dy="16">blob, with a fresh</tspan>
+      <tspan x="310" dy="16">random IV each time.</tspan>
+    </text>
+  </g>
+  <line x1="494" y1="128" x2="536" y2="128" class="arrow" marker-end="url(#arrow)"/>
+
+  <!-- Step 3 -->
+  <g>
+    <rect x="540" y="74" width="220" height="108" rx="16" class="box"/>
+    <text x="560" y="100" class="box-title">3 · At rest</text>
+    <text class="box-body">
+      <tspan x="560" y="122">Only the ciphertext</tspan>
+      <tspan x="560" dy="16">remains, in this</tspan>
+      <tspan x="560" dy="16">browser&apos;s IndexedDB.</tspan>
+      <tspan x="560" dy="16">Plaintext is wiped.</tspan>
+    </text>
+  </g>
+
+  <!-- Key box -->
+  <g>
+    <rect x="40" y="212" width="720" height="150" rx="18" class="box-key"/>
+    <text x="70" y="242" class="box-title">The key — derived from your passcode, never stored</text>
+    <text class="box-body">
+      <tspan x="70" y="268">The encryption key isn&apos;t a file lying next to your data. It&apos;s <tspan class="kbd">PBKDF2(passcode + random salt, 600,000 rounds)</tspan>,</tspan>
+      <tspan x="70" dy="18">recomputed from scratch only when you unlock. The salt and iteration count are stored; the key never is.</tspan>
+      <tspan x="70" dy="18">A wrong passcode produces the wrong key, the GCM authentication tag fails, and decryption is rejected.</tspan>
+      <tspan x="70" dy="18">No passcode = no key = the data stays sealed. That&apos;s why a lost passcode means unrecoverable data.</tspan>
+    </text>
+    <rect x="70" y="352" width="0" height="0"/>
+  </g>
+
+  <!-- Unlock caption -->
+  <text x="400" y="398" text-anchor="middle" class="box-body">Unlock reverses it: passcode → key → decrypt blob → plaintext tables, wiped again on the next lock.</text>
+</svg>

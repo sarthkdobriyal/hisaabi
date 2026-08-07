@@ -115,7 +115,8 @@ Found a security issue? Please open an issue (or a private advisory) rather than
 - [x] Chat interface + AI tool calling + context assembly
 - [x] Dashboard: balances, category breakdown, budgets, trends
 - [x] Cash/bank balance tracking + salary & recurring-bill popups
-- [ ] Settings: export/import, encryption at rest
+- [x] Settings: export/import, encrypted backups
+- [x] Encryption at rest: passcode lock (AES-256-GCM + PBKDF2), auto-lock, encrypted export/restore
 - [ ] Marketing site + blog + full SEO
 - [ ] Deploy
 

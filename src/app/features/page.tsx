@@ -10,6 +10,7 @@ import {
   Search,
   Wallet,
   Smartphone,
+  LockKeyhole,
 } from "lucide-react";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { MarketingHeader } from "@/components/marketing/MarketingHeader";
@@ -65,6 +66,11 @@ const FEATURES = [
     icon: ShieldCheck,
     title: "Private by design",
     body: "Every expense lives in your browser’s IndexedDB. No account, no server, no cloud sync, no analytics. The only outbound request is your prompt to your chosen AI provider.",
+  },
+  {
+    icon: LockKeyhole,
+    title: "Passcode encryption",
+    body: "Lock the app with a passcode and your data is sealed with AES-256-GCM encryption at rest. The key is derived from your passcode (PBKDF2, 600,000 iterations) and never stored — auto-lock keeps the sealed version the default.",
   },
 ];
 
@@ -152,7 +158,11 @@ export default function FeaturesPage() {
           </Link>
           <p className="mt-3 text-sm text-muted-foreground">
             No signup. Read the{" "}
-            <Link href="/privacy" className="text-brand hover:underline">privacy policy</Link>.
+            <Link href="/privacy" className="text-brand hover:underline">privacy policy</Link>, or read the{" "}
+            <Link href="/blog/how-hisaabi-encrypts-your-data" className="text-brand hover:underline">
+              full technical write-up of the encryption
+            </Link>
+            .
           </p>
         </section>
       </main>

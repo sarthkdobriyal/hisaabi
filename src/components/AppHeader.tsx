@@ -3,7 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { Lock, LockKeyhole } from "lucide-react";
 import { initInstallPrompt, installNow, useInstallPrompt } from "@/lib/pwa-install";
+import { getVaultStatus, lock, onVaultStatusChange, type VaultStatus } from "@/lib/vault";
 
 const NAV = [
   { href: "/app", label: "Chat" },
@@ -30,10 +32,29 @@ const closeIcon = (
 export function AppHeader() {
   const [open, setOpen] = useState(false);
   const { native } = useInstallPrompt();
+  const [vault, setVault] = useState<VaultStatus>(getVaultStatus());
+  const [locking, setLocking] = useState(false);
 
   useEffect(() => {
     initInstallPrompt();
+    const off = onVaultStatusChange(() => {
+      setVault(getVaultStatus());
+      setLocking(false);
+    });
+    return off;
   }, []);
+
+  async function onLock() {
+    setLocking(true);
+    try {
+      await lock();
+    } catch {
+      setLocking(false);
+    }
+  }
+
+  const showLock = vault === "unlocked";
+  const showEncryptionOff = vault === "disabled";
 
   return (
     <header className="sticky top-0 z-10 border-b border-slate-200 bg-background/80 backdrop-blur dark:border-slate-800">
@@ -53,6 +74,28 @@ export function AppHeader() {
               {item.label}
             </Link>
           ))}
+          {showLock && (
+            <button
+              type="button"
+              onClick={onLock}
+              disabled={locking}
+              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-slate-600 transition hover:bg-slate-100 disabled:opacity-50 dark:text-slate-300 dark:hover:bg-slate-800"
+              title="Lock the app now"
+            >
+              <Lock className="size-4" />
+              {locking ? "Locking…" : "Lock"}
+            </button>
+          )}
+          {showEncryptionOff && (
+            <Link
+              href="/app/settings"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-amber-300/60 bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700 transition hover:bg-amber-100 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-300 dark:hover:bg-amber-950/50"
+              title="Encryption is off — enable the passcode lock in Settings"
+            >
+              <LockKeyhole className="size-3.5" />
+              Encryption off
+            </Link>
+          )}
         </nav>
 
         <button
@@ -78,6 +121,29 @@ export function AppHeader() {
               {item.label}
             </Link>
           ))}
+          {showLock && (
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                void onLock();
+              }}
+              className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+            >
+              <Lock className="size-4" />
+              {locking ? "Locking…" : "Lock now"}
+            </button>
+          )}
+          {showEncryptionOff && (
+            <Link
+              href="/app/settings"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-amber-700 dark:text-amber-300"
+            >
+              <LockKeyhole className="size-4" />
+              Encryption off — enable passcode
+            </Link>
+          )}
           {native && (
             <button
               type="button"

@@ -1,4 +1,5 @@
 import { db, SETTINGS_ID, type Expense } from "./db";
+import { resetVault } from "./vault";
 
 const TABLES = ["expenses", "income", "profile", "memories", "chatMessages", "settings"] as const;
 
@@ -65,6 +66,7 @@ export async function importJson(text: string): Promise<void> {
 }
 
 export async function wipeAll(): Promise<void> {
+  await resetVault();
   await db.transaction("rw", [db.expenses, db.income, db.profile, db.memories, db.chatMessages, db.settings], async () => {
     await Promise.all(TABLES.map((t) => db.table(t).clear()));
   });
