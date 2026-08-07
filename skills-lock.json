@@ -48,6 +48,12 @@
       "sourceType": "github",
       "skillPath": ".agents/skills/seo-project-setup/SKILL.md",
       "computedHash": "668f2d0146c10313ddcd66c8f677b4b3b4873515e971be794395531e701e6979"
+    },
+    "superdesign": {
+      "source": "superdesigndev/superdesign-skill",
+      "sourceType": "github",
+      "skillPath": "skills/superdesign/SKILL.md",
+      "computedHash": "69d3a9b0e6dbf920c42e76b5fc1e6ed06df0124d528b4fedb43fa04ac81bdb36"
     }
   }
 }
