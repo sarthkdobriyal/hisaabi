@@ -75,10 +75,22 @@ export function BlogCard({ post }: { post: BlogPost }) {
       href={`/blog/${post.slug}`}
       className={`group mb-8 block break-inside-avoid overflow-hidden rounded-xl border border-border bg-card shadow-sm transition duration-200 ease-[cubic-bezier(0.4,0,0.2,1)] ${a.borderHover} ${focus}`}
     >
-      <div
-        className={`flex items-center justify-center bg-muted text-muted-foreground/50 ${HEIGHT[post.image ?? "medium"]}`}
-      >
-        <FileText className="size-6" strokeWidth={1.5} />
+      <div className={`relative overflow-hidden bg-muted ${HEIGHT[post.image ?? "medium"]}`}>
+        {post.cover ? (
+          // Plain <img>, not next/image: covers are remote CDN URLs with
+          // sizing baked in, and this keeps them working without the optimizer.
+          <img
+            src={post.cover}
+            alt={post.title}
+            loading="lazy"
+            decoding="async"
+            className="h-full w-full object-cover transition duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:scale-[1.03]"
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center text-muted-foreground/50">
+            <FileText className="size-6" strokeWidth={1.5} />
+          </div>
+        )}
       </div>
       <div className="p-5">
         <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider">

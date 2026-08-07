@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { VsPage } from "@/components/marketing/VsPage";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
+  path: "/vs/notion-expense-tracker",
   title: "Notion Expense Tracker Template Alternative",
   description:
     "Your Notion budget template has to be built, formatted, and maintained by hand. Hisaabi is an AI expense tracker that parses your expenses from chat — no templates, no formulas.",
-};
+});
 
 const TABLE = [
   { feature: "Setup", hisaabi: "None — works out of the box", them: "Build or find a template" },
@@ -62,6 +64,7 @@ export default function NotionAlternativePage() {
       switchPoints={SWITCH}
       faqs={FAQS}
       conclusion="Use Notion for your life. Track your money elsewhere."
+      path="/vs/notion-expense-tracker"
     />
   );
 }

@@ -6,6 +6,7 @@ tags:
   - Privacy
   - Local-first
 author: "Sarthak Dobriyal"
+cover: "https://images.unsplash.com/photo-1483546416237-76fd26bbcdd1?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
 related:
   - how-hisaabi-encrypts-your-data
   - what-data-stays-on-your-device-means
@@ -27,6 +28,8 @@ This post is the honest version of why.
 Most finance apps aren't run by villains. They're run by teams who made a reasonable decision: put the data on a server, because that's how you build sync, onboarding, analytics, and a business.
 
 But here's the thing nobody says out loud. The moment you log an expense in one of those apps, **a second copy of your financial life exists** — on their machines. And that copy doesn't go away when you delete the app. It feeds marketing profiles. It gets merged into credit models. And if their security ever fails, it's your account numbers and balances in the breach, not your liked posts.
+
+![Keep your own records](https://images.unsplash.com/photo-1590065707046-4fde65275b2e?q=80&w=1330&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)
 
 I don't say this to scare you. I say it because it's the actual trade you're making, and most people make it without ever being told. If you track money in a cloud app, there is a copy of your spending that you do not control. That's not a bug in the model — it's the model.
 

@@ -5,6 +5,7 @@ date: 2026-08-08
 tags:
   - Privacy
 author: "Sarthak Dobriyal"
+cover: "https://images.unsplash.com/photo-1653014288258-fe654fd691ea?q=80&w=735&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
 related:
   - why-hisaabi-keeps-your-data-local
   - how-hisaabi-encrypts-your-data
@@ -47,6 +48,8 @@ Put the safe back on the table. Here's what the lock does for you:
 - Someone picks up your phone while the app is locked → they see a passcode screen and unreadable data.
 - You lose the phone → whoever finds it has a sealed box.
 - A thief copies the files off your device, or reads your browser's storage from a laptop backup → still a sealed box.
+
+![Your phone, locked and sealed](https://images.unsplash.com/photo-1588689653688-9b312cd6bc2b?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)
 
 And here's what the lock does *not* do — no app can promise this, and you should be suspicious of any that claims to:
 

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { MarketingHeader } from "@/components/marketing/MarketingHeader";
+import { SITE } from "@/lib/seo";
 
 type Section = { h: string; body: string[]; list?: string[] };
 type Related = { title: string; href: string; body: string };
@@ -14,6 +15,7 @@ export function GuidePage({
   sections,
   related,
   cta,
+  path,
 }: {
   eyebrow: string;
   title: string;
@@ -22,12 +24,49 @@ export function GuidePage({
   sections: Section[];
   related: Related[];
   cta: { title: string; body: string };
+  path: string;
 }) {
+  const url = `${SITE}${path}`;
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: SITE },
+        { "@type": "ListItem", position: 2, name: "Guides", item: `${SITE}/guides` },
+        { "@type": "ListItem", position: 3, name: title, item: url },
+      ],
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: title,
+      description,
+      dateModified: updated,
+      author: { "@type": "Person", name: "Sarthak Dobriyal" },
+      publisher: {
+        "@type": "Organization",
+        name: "Hisaabi",
+        url: SITE,
+        logo: { "@type": "ImageObject", url: `${SITE}/hisaabi-icon.svg` },
+      },
+      mainEntityOfPage: { "@type": "WebPage", "@id": url },
+    },
+  ];
+
   return (
     <>
       <MarketingHeader />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-14">
-        <span className="rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
+        <nav className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <Link href="/" className="transition hover:text-brand">Home</Link>
+          <span>/</span>
+          <Link href="/guides" className="transition hover:text-brand">Guides</Link>
+          <span>/</span>
+          <span className="text-foreground">{title}</span>
+        </nav>
+        <span className="mt-6 inline-block rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
           {eyebrow}
         </span>
         <h1 className="mt-6 text-4xl font-bold tracking-tight sm:text-5xl">{title}</h1>
@@ -75,6 +114,11 @@ export function GuidePage({
                 <p className="mt-2 text-sm text-muted-foreground">{r.body}</p>
               </Link>
             ))}
+          </div>
+          <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+            <Link href="/features" className="font-medium text-brand hover:underline">Explore features</Link>
+            <Link href="/blog" className="font-medium text-brand hover:underline">Read the blog</Link>
+            <Link href="/" className="font-medium text-brand hover:underline">Back to homepage</Link>
           </div>
         </section>
 

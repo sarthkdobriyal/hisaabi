@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { VsPage } from "@/components/marketing/VsPage";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
+  path: "/vs/splitwise-alternative",
   title: "Splitwise Alternative for Personal Expenses",
   description:
     "Splitwise is great at splitting bills — less so at private tracking. Hisaabi is a free, local-first expense tracker for your own spending, with AI chat entry.",
-};
+});
 
 const TABLE = [
   { feature: "Price", hisaabi: "$0, forever", them: "Free tier + premium subscription" },
@@ -62,6 +64,7 @@ export default function SplitwiseAlternativePage() {
       switchPoints={SWITCH}
       faqs={FAQS}
       conclusion="Split the bills there. Track the money here."
+      path="/vs/splitwise-alternative"
     />
   );
 }

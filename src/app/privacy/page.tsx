@@ -3,12 +3,14 @@ import Link from "next/link";
 import { ShieldCheck } from "lucide-react";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { MarketingHeader } from "@/components/marketing/MarketingHeader";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
+  path: "/privacy",
   title: "Privacy Policy — Your data never leaves this browser",
   description:
     "Hisaabi stores your expenses only in your browser. Nothing leaves your device except the prompt you send to your own AI provider. Open the Network tab and check.",
-};
+});
 
 export default function PrivacyPage() {
   return (

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Check } from "lucide-react";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { MarketingHeader } from "@/components/marketing/MarketingHeader";
+import { SITE } from "@/lib/seo";
 
 type TableRow = { feature: string; hisaabi: string; them: string };
 type Faq = { q: string; a: string };
@@ -15,6 +16,7 @@ export function VsPage({
   switchPoints,
   faqs,
   conclusion,
+  path,
 }: {
   competitor: string;
   heroTitle: string;
@@ -24,12 +26,43 @@ export function VsPage({
   switchPoints: { title: string; body: string }[];
   faqs: Faq[];
   conclusion: string;
+  path: string;
 }) {
+  const url = `${SITE}${path}`;
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: SITE },
+        { "@type": "ListItem", position: 2, name: "Alternatives", item: `${SITE}/features` },
+        { "@type": "ListItem", position: 3, name: heroTitle, item: url },
+      ],
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: faqs.map((f) => ({
+        "@type": "Question",
+        name: f.q,
+        acceptedAnswer: { "@type": "Answer", text: f.a },
+      })),
+    },
+  ];
+
   return (
     <>
       <MarketingHeader />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <main className="flex-1">
         <section className="mx-auto w-full max-w-3xl px-6 pb-8 pt-14 text-center sm:pt-20">
+          <nav className="mb-6 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+            <Link href="/" className="transition hover:text-brand">Home</Link>
+            <span>/</span>
+            <Link href="/features" className="transition hover:text-brand">Features</Link>
+            <span>/</span>
+            <span className="text-foreground">{competitor} alternative</span>
+          </nav>
           <span className="rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
             {competitor} alternative
           </span>
@@ -115,6 +148,11 @@ export function VsPage({
             No account. Read the{" "}
             <Link href="/privacy" className="text-brand hover:underline">privacy policy</Link>.
           </p>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm">
+            <Link href="/features" className="font-medium text-brand hover:underline">Explore features</Link>
+            <Link href="/blog" className="font-medium text-brand hover:underline">Read the blog</Link>
+            <Link href="/" className="font-medium text-brand hover:underline">Back to homepage</Link>
+          </div>
         </section>
       </main>
       <MarketingFooter />

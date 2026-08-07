@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { GuidePage } from "@/components/marketing/GuidePage";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
+  path: "/guides/budgeting-with-ai",
   title: "Budgeting With AI — Budgets That Actually Hold",
   description:
     "Most budgets fail because tracking is a chore. AI budgeting apps log your spending from chat and watch the limits for you. Here's how to make a budget that holds.",
-};
+});
 
 const SECTIONS = [
   {
@@ -65,6 +67,7 @@ export default function BudgetingWithAiGuide() {
       title="Budgeting with AI: budgets that actually hold"
       description="Budgets don’t fail from weak willpower — they fail because tracking is a chore. Here’s how AI budgeting automates the tracking and warns you before you overspend, not after."
       updated="August 6, 2026"
+      path="/guides/budgeting-with-ai"
       sections={SECTIONS}
       related={RELATED}
       cta={{

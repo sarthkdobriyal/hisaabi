@@ -3,6 +3,14 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   allowedDevOrigins: ['03e4-2405-201-681b-d15a-b5b8-e4b4-e337-ff1d.ngrok-free.app'],
+  images: {
+    remotePatterns: [
+      // Blog cover art — allow stable Unsplash CDN links so we can hotlink
+      // them, or download to /public/images/blog/ to self-host instead.
+      { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "https", hostname: "plus.unsplash.com" },
+    ],
+  },
   async headers() {
     return [
       {

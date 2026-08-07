@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { GuidePage } from "@/components/marketing/GuidePage";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
+  path: "/guides/track-expenses-in-india",
   title: "How to Track Expenses in India (INR, UPI, Cash)",
   description:
     "Track expenses in India with UPI, cash, and bank all accounted for. A practical guide to INR budgeting, salary-based planning, and an expense tracker built for it.",
-};
+});
 
 const SECTIONS = [
   {
@@ -65,6 +67,7 @@ export default function TrackExpensesInIndiaGuide() {
       title="How to track expenses in India: UPI, cash, and salary"
       description="Indian spending spans UPI, cash, and multiple accounts — and most trackers only see a fraction. Here’s a practical system for tracking in rupees, from salary date to the kirana trip."
       updated="August 6, 2026"
+      path="/guides/track-expenses-in-india"
       sections={SECTIONS}
       related={RELATED}
       cta={{

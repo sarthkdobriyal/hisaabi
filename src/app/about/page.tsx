@@ -3,12 +3,14 @@ import Link from "next/link";
 import { FileCode2, LockKeyhole, MessageSquareText } from "lucide-react";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { MarketingHeader } from "@/components/marketing/MarketingHeader";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
+  path: "/about",
   title: "About — the story behind Hisaabi",
   description:
     "Why Hisaabi exists: a private, local-first AI expense tracker built by someone tired of handing financial data to cloud apps. Free, open source, no account.",
-};
+});
 
 const PILLARS = [
   {

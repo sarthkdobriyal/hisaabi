@@ -9,8 +9,7 @@ import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { BlogCard } from "@/components/blog/BlogCard";
 import { categoryOf, formatDate, type BlogPost } from "@/lib/blog";
 import { BLOG_POSTS, getPost, readAllPosts, type PostMeta } from "@/lib/posts";
-
-const SITE = "https://hisaabi.co.in";
+import { pageMetadata, SITE } from "@/lib/seo";
 
 export const dynamicParams = false;
 
@@ -27,19 +26,17 @@ export async function generateMetadata({
   const post = getPost(slug);
   if (!post) return {};
   const { meta } = post;
-  return {
+  return pageMetadata({
+    path: `/blog/${meta.slug}`,
     title: meta.title,
     description: meta.description,
-    alternates: { canonical: `${SITE}/blog/${meta.slug}` },
-    openGraph: {
-      title: meta.title,
-      description: meta.description,
-      type: "article",
-      url: `${SITE}/blog/${meta.slug}`,
-      publishedTime: meta.date,
-      authors: [meta.author],
-    },
-  };
+    type: "article",
+    image: meta.cover,
+    publishedTime: meta.date,
+    modifiedTime: meta.date,
+    authors: [meta.author],
+    tags: meta.tags,
+  });
 }
 
 const md = {
@@ -119,13 +116,21 @@ export default async function BlogPostPage({
 
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "Article",
+    "@type": "BlogPosting",
     headline: meta.title,
     description: meta.description,
+    image: meta.cover,
+    keywords: meta.tags,
     datePublished: meta.date,
     dateModified: meta.date,
+    timeRequired: `PT${meta.readingTime.replace(/ min$/, "")}M`,
     author: { "@type": "Person", name: meta.author },
-    publisher: { "@type": "Organization", name: "Hisaabi", url: SITE },
+    publisher: {
+      "@type": "Organization",
+      name: "Hisaabi",
+      url: SITE,
+      logo: { "@type": "ImageObject", url: `${SITE}/hisaabi-icon.svg` },
+    },
     mainEntityOfPage: { "@type": "WebPage", "@id": `${SITE}/blog/${meta.slug}` },
   };
 
@@ -157,6 +162,11 @@ export default async function BlogPostPage({
             </div>
             <span className="text-sm font-medium">{meta.author}</span>
           </div>
+          {meta.cover && (
+            <div className="relative mt-8 h-64 overflow-hidden rounded-2xl border border-border sm:h-80">
+              <img src={meta.cover} alt={meta.title} className="h-full w-full object-cover" />
+            </div>
+          )}
           <ReactMarkdown remarkPlugins={[remarkGfm]} components={md}>
             {content}
           </ReactMarkdown>

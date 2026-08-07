@@ -3,12 +3,14 @@ import Link from "next/link";
 import { Check, X } from "lucide-react";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { MarketingHeader } from "@/components/marketing/MarketingHeader";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Pricing — Free forever",
+export const metadata: Metadata = pageMetadata({
+  path: "/pricing",
+  title: "Pricing — Free, forever",
   description:
     "Hisaabi is a free expense tracker. No subscriptions, no accounts. You bring your own AI API key and pay only your provider’s usage — typically a few cents a month.",
-};
+});
 
 const INCLUDED = [
   "Unlimited expenses & income",

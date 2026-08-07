@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { VsPage } from "@/components/marketing/VsPage";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
+  path: "/vs/mint-alternative",
   title: "Mint Alternative — Private Expense Tracker",
   description:
     "Looking for a Mint replacement? Hisaabi is a free, private expense tracker with AI chat — no account, no ads, no data to sell. Import your habit, not your history.",
-};
+});
 
 const TABLE = [
   { feature: "Price", hisaabi: "$0, forever", them: "Shut down (2024)" },
@@ -62,6 +64,7 @@ export default function MintAlternativePage() {
       switchPoints={SWITCH}
       faqs={FAQS}
       conclusion="Skip the next Mint. Track where the last one kept your data."
+      path="/vs/mint-alternative"
     />
   );
 }

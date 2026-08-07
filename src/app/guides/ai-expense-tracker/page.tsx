@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { GuidePage } from "@/components/marketing/GuidePage";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
+  path: "/guides/ai-expense-tracker",
   title: "What Is an AI Expense Tracker & Why You Need One",
   description:
     "AI expense trackers log your spending from chat and answer questions about your money. Learn how they work, the privacy trade-offs, and how to pick one.",
-};
+});
 
 const SECTIONS = [
   {
@@ -83,9 +85,10 @@ export default function AiExpenseTrackerGuide() {
   return (
     <GuidePage
       eyebrow="Guide"
-      title="What is an AI expense tracker — and why you need one"
-      description="AI expense trackers turn “spent 450 on groceries” into a categorized record, and answer questions about your spending from your own data. Here’s how they work, the privacy trade-offs, and how to pick the right one."
+      title="What is an AI expense tracker?"
+      description="An AI expense tracker logs spending from chat and answers questions about your money. Here's how they work, the privacy trade-offs, and how to pick one."
       updated="August 6, 2026"
+      path="/guides/ai-expense-tracker"
       sections={SECTIONS}
       related={RELATED}
       cta={{

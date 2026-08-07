@@ -7,6 +7,7 @@ tags:
   - Encryption
   - Engineering
 author: "Sarthak Dobriyal"
+cover: "https://images.unsplash.com/photo-1764231467848-dc20e066cde2?q=80&w=706&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
 related:
   - why-hisaabi-keeps-your-data-local
   - what-data-stays-on-your-device-means

@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { VsPage } from "@/components/marketing/VsPage";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
+  path: "/vs/excel-expense-tracker",
   title: "Excel Expense Tracker Alternative",
   description:
     "Lose the spreadsheet. Hisaabi is an AI expense tracker that logs your spending from chat, categorizes it, and answers questions — no formulas, no formatting, no manual columns.",
-};
+});
 
 const TABLE = [
   { feature: "Entry method", hisaabi: "Chat, in plain language", them: "Manual rows & formulas" },
@@ -62,6 +64,7 @@ export default function ExcelAlternativePage() {
       switchPoints={SWITCH}
       faqs={FAQS}
       conclusion="Keep the spreadsheet for analysis. Log the expenses somewhere human."
+      path="/vs/excel-expense-tracker"
     />
   );
 }

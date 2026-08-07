@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { MarketingHeader } from "@/components/marketing/MarketingHeader";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
+  path: "/terms",
   title: "Terms of Service — Free & open source",
   description:
     "Hisaabi is free and open source. Your data stays on your device; you are responsible for your API key and for reviewing AI-parsed entries.",
-};
+});
 
 export default function TermsPage() {
   return (

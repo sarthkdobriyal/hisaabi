@@ -7,6 +7,7 @@ tags:
   - India
   - SMS
 author: "Sarthak Dobriyal"
+cover: "https://plus.unsplash.com/premium_photo-1681589453747-53fd893fa420?q=80&w=1169&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
 related: []
 ---
 
@@ -39,6 +40,8 @@ The apps are careful to reassure you. Moneyview, for instance, [states](https://
 But here's the thing about `READ_SMS`: it's an all-or-nothing permission. The app's code decides what to read and what to ignore. You're not granting access to "bank alerts only" — you're granting access to everything, and trusting that the app filters correctly, that a future update doesn't change that behavior, and that nothing on the app's side leaks.
 
 What those messages contain goes beyond the merchant and amount. Transaction messages include your account number, your remaining balance, and sometimes your card's last four digits. That's not just spending data — it's financial identity data, sitting in a company's database for as long as it chooses to keep it, and shared in ways a permission popup doesn't tell you about.
+
+![Your money, your history](https://images.unsplash.com/photo-1592890288564-76628a30a657?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)
 
 Compare that with the thing everyone treats as the crown jewel of their online life: the password. A password can be changed in sixty seconds. Your spending history can't. It's a permanent record of your life — and these apps read it wholesale to build a feature you could replicate with a few taps a day.
 

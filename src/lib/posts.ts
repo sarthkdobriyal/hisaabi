@@ -13,6 +13,7 @@ export type PostMeta = {
   tags: string[];
   author: string;
   related: string[];
+  cover?: string;
   readingTime: string;
 };
 
@@ -34,6 +35,7 @@ function toIsoDate(value: unknown): string {
 }
 
 function metaOf(slug: string, data: Record<string, unknown>, content: string): PostMeta {
+  const cover = String(data.cover ?? "").trim();
   return {
     slug,
     title: String(data.title ?? slug),
@@ -42,6 +44,7 @@ function metaOf(slug: string, data: Record<string, unknown>, content: string): P
     tags: Array.isArray(data.tags) ? data.tags.map(String) : [],
     author: String(data.author ?? "Hisaabi Team"),
     related: Array.isArray(data.related) ? data.related.map(String) : [],
+    cover: cover || undefined,
     readingTime: readingTime(content.trim().split(/\s+/).length),
   };
 }
@@ -82,6 +85,7 @@ export const BLOG_POSTS: BlogPost[] = (() => {
     date: formatDate(m.date),
     readTime: m.readingTime,
     author: m.author,
+    cover: m.cover,
   }));
   return real.length > 0 ? real : SEED_POSTS;
 })();

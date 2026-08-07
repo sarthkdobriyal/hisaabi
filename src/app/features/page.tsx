@@ -11,68 +11,37 @@ import {
   Wallet,
   Smartphone,
   LockKeyhole,
+  Download,
+  Sparkles,
+  ArrowRight,
+  type LucideIcon,
 } from "lucide-react";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { MarketingHeader } from "@/components/marketing/MarketingHeader";
+import { pageMetadata } from "@/lib/seo";
+import { FEATURES } from "@/lib/features";
 
-export const metadata: Metadata = {
-  title: "Expense Tracker Features",
+export const metadata: Metadata = pageMetadata({
+  path: "/features",
+  title: "Features — Chat-first private expense tracker",
   description:
     "Chat-first expense tracking, auto-categorization, budgets, bills, offline PWA and private-by-design local storage. Explore every Hisaabi feature.",
-};
+});
 
-const FEATURES = [
-  {
-    icon: MessageSquareText,
-    title: "Chat to record",
-    body: "Type “spent 200 on coffee” or “paid 800 for the electric bill” and it’s logged — no forms, no dropdowns, no category pickers. The chat understands amounts, dates and payment methods in plain language.",
-  },
-  {
-    icon: Tags,
-    title: "Auto-categorization",
-    body: "Every expense is sorted into the right category automatically. When something doesn’t fit, the AI asks before creating a new one — so your data stays tidy and you stay in control.",
-  },
-  {
-    icon: Search,
-    title: "Ask about your spending",
-    body: "“How much did I spend on food this month?” gets a real answer computed from your own data — not a guess. Chat doubles as the report you never have to build.",
-  },
-  {
-    icon: Target,
-    title: "Budgets & goals",
-    body: "Set monthly limits per category and watch a live rollup. Clear alerts show when a category is trending over, before the month ends.",
-  },
-  {
-    icon: CalendarClock,
-    title: "Bills & salary",
-    body: "Tell Hisaabi about recurring bills and your salary date, and it reminds you when a bill is due or your salary should have landed — confirm in a tap.",
-  },
-  {
-    icon: Wallet,
-    title: "Cash & bank balances",
-    body: "Track cash and bank money separately, with the ability to adjust balances manually. Expenses default to the bank account unless you say cash.",
-  },
-  {
-    icon: WifiOff,
-    title: "Offline PWA",
-    body: "Install Hisaabi like a native app. The shell works offline — you can log and review spending without a connection. With local Ollama, even the AI works offline.",
-  },
-  {
-    icon: Smartphone,
-    title: "Installable on any device",
-    body: "A proper PWA with an app icon and manifest. Add it to your home screen on Android, iOS or desktop and it behaves like an app.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Private by design",
-    body: "Every expense lives in your browser’s IndexedDB. No account, no server, no cloud sync, no analytics. The only outbound request is your prompt to your chosen AI provider.",
-  },
-  {
-    icon: LockKeyhole,
-    title: "Passcode encryption",
-    body: "Lock the app with a passcode and your data is sealed with AES-256-GCM encryption at rest. The key is derived from your passcode (PBKDF2, 600,000 iterations) and never stored — auto-lock keeps the sealed version the default.",
-  },
-];
+const FEATURE_ICONS: Record<string, LucideIcon> = {
+  "chat-expense-logging": MessageSquareText,
+  "auto-categorization": Tags,
+  "spending-insights": Search,
+  "budgets-and-goals": Target,
+  "bills-and-salary-reminders": CalendarClock,
+  "cash-and-bank-balances": Wallet,
+  "offline-pwa": WifiOff,
+  "installable-app": Smartphone,
+  "private-by-design": ShieldCheck,
+  "encryption-at-rest": LockKeyhole,
+  "export-and-backups": Download,
+  "bring-your-own-ai": Sparkles,
+};
 
 const STEPS = [
   {
@@ -112,15 +81,25 @@ export default function FeaturesPage() {
 
         <section className="mx-auto w-full max-w-5xl px-6 py-12">
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {FEATURES.map((f) => (
-              <div key={f.title} className="rounded-2xl border border-border bg-card p-6 shadow-sm">
-                <div className="flex size-10 items-center justify-center rounded-xl bg-brand/10 text-brand">
-                  <f.icon className="size-5" />
-                </div>
-                <h2 className="mt-4 text-lg font-semibold">{f.title}</h2>
-                <p className="mt-2 text-sm text-muted-foreground">{f.body}</p>
-              </div>
-            ))}
+            {FEATURES.map((f) => {
+              const Icon = FEATURE_ICONS[f.slug] ?? Sparkles;
+              return (
+                <Link
+                  key={f.slug}
+                  href={`/features/${f.slug}`}
+                  className="group flex flex-col rounded-2xl border border-border bg-card p-6 shadow-sm transition hover:border-brand/40"
+                >
+                  <div className="flex size-10 items-center justify-center rounded-xl bg-brand/10 text-brand">
+                    <Icon className="size-5" />
+                  </div>
+                  <h2 className="mt-4 text-lg font-semibold group-hover:text-brand">{f.name}</h2>
+                  <p className="mt-2 text-sm text-muted-foreground">{f.tagline}</p>
+                  <p className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-brand">
+                    Learn more <ArrowRight className="size-3.5" />
+                  </p>
+                </Link>
+              );
+            })}
           </div>
         </section>
 

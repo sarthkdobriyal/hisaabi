@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { GuidePage } from "@/components/marketing/GuidePage";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
+  path: "/guides/private-expense-tracking",
   title: "Private Expense Tracking — Keep Your Finances Local",
   description:
     "Cloud trackers store your whole financial life on servers you don't control. Here's how private, local-first expense tracking works — and how to verify the privacy claim.",
-};
+});
 
 const SECTIONS = [
   {
@@ -73,6 +75,7 @@ export default function PrivateExpenseTrackingGuide() {
       title="Private expense tracking: keep your finances out of the cloud"
       description="A complete spending history is one of the most sensitive documents you own. Here’s why cloud trackers are a bad home for it, how local-first apps fix the problem, and how to verify the privacy claim yourself."
       updated="August 6, 2026"
+      path="/guides/private-expense-tracking"
       sections={SECTIONS}
       related={RELATED}
       cta={{

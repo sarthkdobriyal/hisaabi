@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { readAllPosts } from "@/lib/posts";
+import { FEATURES } from "@/lib/features";
 
 const SITE = "https://hisaabi.co.in";
 
@@ -8,6 +9,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...readAllPosts().map((p) => ({
       url: `${SITE}/blog/${p.slug}`,
       lastModified: new Date(p.date),
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    })),
+    ...FEATURES.map((f) => ({
+      url: `${SITE}/features/${f.slug}`,
+      lastModified: new Date(),
       changeFrequency: "monthly" as const,
       priority: 0.7,
     })),
