@@ -50,7 +50,6 @@ export default function DashboardPage() {
   const { summary, profile, thisExpenses, thisIncome } = data;
   const money = currencyFmt(summary.currency);
 
-  // Income aggregated by day (same shape as byDay) for trend chart.
   const incomeByDay = computeByDay(thisIncome);
   const chartData: ChartData = {
     byDay: summary.byDay,
@@ -59,20 +58,16 @@ export default function DashboardPage() {
     currency: summary.currency,
   };
 
-  // Cash vs bank split from raw expense rows.
   const cashSpend = thisExpenses.filter((e) => e.account === "cash").reduce((s, e) => s + e.amount, 0);
   const bankSpend = thisExpenses.reduce((s, e) => s + e.amount, 0) - cashSpend;
 
-  // Budget rollup.
   const budgeted = summary.byCategory.filter((c) => c.budgetLimit != null);
   const budgetUsed = budgeted.reduce((s, c) => s + c.total, 0);
   const budgetLimit = budgeted.reduce((s, c) => s + (c.budgetLimit ?? 0), 0);
   const overBudget = budgeted.filter((c) => c.overBudget);
 
-  // Savings rate.
   const savingsRate = summary.incomeTotal > 0 ? Math.round((summary.net / summary.incomeTotal) * 100) : null;
 
-  // Recurring & salary (current month only).
   const due = isCurrent ? dueBills(profile) : [];
   const salary = isCurrent ? salaryDue(profile) : null;
 
@@ -83,7 +78,7 @@ export default function DashboardPage() {
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex flex-col gap-1">
           <p className="text-sm font-medium text-brand">{summary.month}</p>
-          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-white">Dashboard</h1>
         </div>
         <div className="flex items-center gap-1">
           <Button
@@ -94,7 +89,7 @@ export default function DashboardPage() {
           >
             <ChevronLeft />
           </Button>
-          <span className="min-w-36 text-center text-sm font-medium">{monthLabel}</span>
+          <span className="min-w-36 text-center text-sm font-medium text-zinc-300">{monthLabel}</span>
           <Button
             variant="outline"
             size="icon-sm"
@@ -107,22 +102,17 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      {/* Balances (editable) */}
       <BalancesCard cash={profile.cashBalance ?? 0} bank={profile.bankBalance ?? 0} currency={profile.currency} />
 
-      {/* Stat cards */}
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard label="Income" value={money.format(summary.incomeTotal)} tone="good" />
         <StatCard label="Expenses" value={money.format(summary.expenseTotal)} tone="bad" />
         <StatCard label="Net" value={money.format(summary.net)} tone={summary.net >= 0 ? "good" : "bad"} />
       </div>
 
-      {/* Charts */}
       <DashboardCharts {...chartData} />
 
-      {/* New info cards row */}
       <div className="grid gap-4 sm:grid-cols-2">
-        {/* Cash vs Bank */}
         <InfoCard title="Cash vs bank spend">
           {summary.expenseTotal > 0 ? (
             <div className="flex flex-col gap-3">
@@ -134,24 +124,22 @@ export default function DashboardPage() {
           )}
         </InfoCard>
 
-        {/* Savings rate */}
         <InfoCard title="Savings rate">
           {savingsRate != null ? (
             <div className="flex items-end gap-2">
               <span className={`text-3xl font-bold ${savingsRate >= 0 ? "text-brand-600" : "text-red-600"}`}>
                 {savingsRate}%
               </span>
-              <span className="pb-1 text-sm text-muted-foreground">of income saved</span>
+              <span className="pb-1 text-sm text-zinc-400">of income saved</span>
             </div>
           ) : (
             <EmptyHint text="Log income to see your savings rate." />
           )}
           {salary != null && (
-            <p className="mt-2 text-xs text-muted-foreground">Salary of {money.format(salary)} is due this month.</p>
+            <p className="mt-2 text-xs text-zinc-400">Salary of {money.format(salary)} is due this month.</p>
           )}
         </InfoCard>
 
-        {/* Budget rollup */}
         <InfoCard title="Budget rollup">
           {budgetLimit > 0 ? (
             <>
@@ -159,7 +147,7 @@ export default function DashboardPage() {
                 <span className={`text-3xl font-bold ${budgetUsed <= budgetLimit ? "text-brand-600" : "text-red-600"}`}>
                   {Math.round((budgetUsed / budgetLimit) * 100)}%
                 </span>
-                <span className="pb-1 text-sm text-muted-foreground">
+                <span className="pb-1 text-sm text-zinc-400">
                   {money.format(budgetUsed)} of {money.format(budgetLimit)}
                 </span>
               </div>
@@ -179,7 +167,6 @@ export default function DashboardPage() {
           )}
         </InfoCard>
 
-        {/* Recurring bills due */}
         <InfoCard title="Recurring bills">
           {profile.recurringBills.length > 0 ? (
             <ul className="space-y-2">
@@ -187,15 +174,15 @@ export default function DashboardPage() {
                 const paid = b.lastPaidMonth === monthKey();
                 return (
                   <li key={b.name} className="flex items-center justify-between text-sm">
-                    <span className={paid ? "text-muted-foreground line-through" : ""}>
+                    <span className={paid ? "text-zinc-500 line-through" : ""}>
                       {b.name} · {money.format(b.amount)} · day {b.dayOfMonth}
                     </span>
                     {paid ? (
-                      <span className="text-xs text-muted-foreground">Paid</span>
+                      <span className="text-xs text-zinc-500">Paid</span>
                     ) : due.some((d) => d.name === b.name) ? (
-                      <span className="text-xs font-medium text-amber-600">Due</span>
+                      <span className="text-xs font-medium text-amber-400">Due</span>
                     ) : (
-                      <span className="text-xs text-muted-foreground">Upcoming</span>
+                      <span className="text-xs text-zinc-500">Upcoming</span>
                     )}
                   </li>
                 );
@@ -207,19 +194,18 @@ export default function DashboardPage() {
         </InfoCard>
       </div>
 
-      {/* Category spend detail (existing) */}
       <InfoCard title="Category spend">
         {summary.byCategory.length > 0 ? (
           <div className="grid gap-3">
             {summary.byCategory.map((c) => {
               const pct = c.budgetLimit ? Math.min((c.total / c.budgetLimit) * 100, 100) : 0;
               return (
-                <div key={c.category} className="rounded-xl border border-border p-4">
+                <div key={c.category} className="rounded-xl border border-white/10 p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <p className="font-medium">{c.category}</p>
                       {c.budgetLimit && (
-                        <p className={`mt-1 text-xs ${c.overBudget ? "text-red-600" : "text-muted-foreground"}`}>
+                        <p className={`mt-1 text-xs ${c.overBudget ? "text-red-600" : "text-zinc-400"}`}>
                           {money.format(c.total)} of {money.format(c.budgetLimit)}
                         </p>
                       )}
@@ -227,7 +213,7 @@ export default function DashboardPage() {
                     <p className="font-semibold">{money.format(c.total)}</p>
                   </div>
                   {c.budgetLimit != null && (
-                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-muted">
+                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-zinc-800">
                       <div
                         className={`h-full rounded-full ${c.overBudget ? "bg-red-500" : "brand-gradient"}`}
                         style={{ width: `${pct}%` }}
@@ -243,9 +229,8 @@ export default function DashboardPage() {
         )}
       </InfoCard>
 
-      {/* Month over month */}
       <InfoCard title="Month over month">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-zinc-400">
           Expenses are {money.format(Math.abs(summary.prev.deltaAmount))}{" "}
           {summary.prev.deltaAmount >= 0 ? "higher" : "lower"} than{" "}
           {new Date(`${summary.prev.month}-01`).toLocaleString("en-IN", { month: "long" })}
@@ -256,8 +241,6 @@ export default function DashboardPage() {
   );
 }
 
-// --- helpers ---
-
 function computeByDay(items: (Expense | Income)[]) {
   const acc = new Map<string, number>();
   for (const item of items) acc.set(item.date, (acc.get(item.date) ?? 0) + item.amount);
@@ -266,8 +249,8 @@ function computeByDay(items: (Expense | Income)[]) {
 
 function StatCard({ label, value, tone }: { label: string; value: string; tone: "good" | "bad" }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-      <p className="text-sm text-muted-foreground">{label}</p>
+    <div className="rounded-2xl border border-white/10 bg-zinc-900/50 p-5 shadow-sm">
+      <p className="text-sm text-zinc-400">{label}</p>
       <p className={`mt-2 text-2xl font-bold ${tone === "good" ? "text-brand-600" : "text-red-600"}`}>{value}</p>
     </div>
   );
@@ -292,15 +275,15 @@ function BalancesCard({ cash, bank, currency }: { cash: number; bank: number; cu
   ];
 
   return (
-    <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+    <section className="rounded-2xl border border-white/10 bg-zinc-900/50 p-6 shadow-sm">
       <div className="flex items-baseline justify-between">
         <h2 className="text-base font-semibold tracking-tight">Balances</h2>
-        <span className="text-xs text-muted-foreground">Edit a number, then press Enter</span>
+        <span className="text-xs text-zinc-400">Edit a number, then press Enter</span>
       </div>
       <div className="mt-4 grid gap-4 sm:grid-cols-3">
         {fields.map((f) => (
-          <label key={f.which} className="block rounded-xl border border-border p-4">
-            <span className="text-sm text-muted-foreground">{f.label}</span>
+          <label key={f.which} className="block rounded-xl border border-white/10 p-4">
+            <span className="text-sm text-zinc-400">{f.label}</span>
             <input
               key={f.key}
               type="number"
@@ -311,12 +294,12 @@ function BalancesCard({ cash, bank, currency }: { cash: number; bank: number; cu
               onKeyDown={(e) => {
                 if (e.key === "Enter") (e.target as HTMLInputElement).blur();
               }}
-              className="mt-1 w-full bg-transparent text-2xl font-bold outline-none"
+              className="mt-1 w-full bg-transparent text-2xl font-bold text-white outline-none"
             />
           </label>
         ))}
         <div className="rounded-xl border border-brand/30 bg-brand/5 p-4">
-          <p className="text-sm text-muted-foreground">Total money</p>
+          <p className="text-sm text-zinc-400">Total money</p>
           <p className="mt-1 text-2xl font-bold text-brand">{fmt.format(total)}</p>
         </div>
       </div>
@@ -326,7 +309,7 @@ function BalancesCard({ cash, bank, currency }: { cash: number; bank: number; cu
 
 function InfoCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+    <section className="rounded-2xl border border-white/10 bg-zinc-900/50 p-6 shadow-sm">
       <h2 className="mb-4 text-base font-semibold tracking-tight">{title}</h2>
       {children}
     </section>
@@ -349,8 +332,8 @@ function SplitBar({
   const pct = total > 0 ? (amount / total) * 100 : 0;
   return (
     <div className="flex items-center gap-3 text-sm">
-      <span className="w-12 text-muted-foreground">{label}</span>
-      <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
+      <span className="w-12 text-zinc-500">{label}</span>
+      <div className="h-2 flex-1 overflow-hidden rounded-full bg-zinc-800">
         <div className="h-full rounded-full" style={{ width: `${pct}%`, background: color }} />
       </div>
       <span className="w-20 text-right font-medium">{money.format(amount)}</span>
@@ -360,7 +343,7 @@ function SplitBar({
 
 function EmptyHint({ text }: { text: string }) {
   return (
-    <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+    <p className="rounded-xl border border-dashed border-white/10 p-6 text-center text-sm text-zinc-500">
       {text}
     </p>
   );

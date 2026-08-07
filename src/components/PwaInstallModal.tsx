@@ -28,21 +28,21 @@ export function PwaInstallModal() {
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-sm rounded-2xl border border-slate-200 bg-background p-6 shadow-xl dark:border-slate-800"
+        className="w-full max-w-sm rounded-2xl border border-white/10 bg-zinc-900 p-6 shadow-xl"
       >
-        <h2 id="pwa-title" className="text-lg font-bold tracking-tight">
+        <h2 id="pwa-title" className="text-lg font-bold tracking-tight text-white">
           Install Hisaabi
         </h2>
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+        <p className="mt-2 text-sm text-zinc-400">
           Add it to your home screen for one-tap access and offline use. Your data stays on this device.
         </p>
-        <p className="mt-4 rounded-xl bg-slate-50 p-3 text-sm text-slate-600 dark:bg-slate-900 dark:text-slate-300">
+        <p className="mt-4 rounded-xl bg-zinc-950 p-3 text-sm text-zinc-400">
           iPhone/iPad: tap <strong>Share</strong> in Safari, then <strong>Add to Home Screen</strong>. Android:
           browser menu → <strong>Install app</strong>.
         </p>
         <button
           onClick={() => setShow(false)}
-          className="mt-4 w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-medium transition hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-900"
+          className="mt-4 w-full rounded-lg border border-white/10 px-4 py-2.5 text-sm font-medium text-zinc-300 transition hover:bg-zinc-800"
         >
           Got it
         </button>

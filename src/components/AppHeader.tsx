@@ -57,9 +57,9 @@ export function AppHeader() {
   const showEncryptionOff = vault === "disabled";
 
   return (
-    <header className="sticky top-0 z-10 border-b border-slate-200 bg-background/80 backdrop-blur dark:border-slate-800">
+    <header className="sticky top-0 z-10 border-b border-white/10 bg-black/80 backdrop-blur">
       <div className="mx-auto flex w-full max-w-3xl items-center justify-between px-4 py-3">
-        <Link href="/app" className="flex items-center gap-2 font-semibold" onClick={() => setOpen(false)}>
+        <Link href="/app" className="flex items-center gap-2 font-semibold text-white" onClick={() => setOpen(false)}>
           <Image src="/hisaabi-icon.svg" alt="" width={28} height={28} className="rounded-md" />
           Hisaabi
         </Link>
@@ -69,7 +69,7 @@ export function AppHeader() {
             <Link
               key={item.href}
               href={item.href}
-              className="rounded-lg px-3 py-1.5 text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+              className="rounded-lg px-3 py-1.5 text-zinc-400 transition hover:bg-zinc-900 hover:text-white"
             >
               {item.label}
             </Link>
@@ -79,7 +79,7 @@ export function AppHeader() {
               type="button"
               onClick={onLock}
               disabled={locking}
-              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-slate-600 transition hover:bg-slate-100 disabled:opacity-50 dark:text-slate-300 dark:hover:bg-slate-800"
+              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-zinc-400 transition hover:bg-zinc-900 hover:text-white disabled:opacity-50"
               title="Lock the app now"
             >
               <Lock className="size-4" />
@@ -89,7 +89,7 @@ export function AppHeader() {
           {showEncryptionOff && (
             <Link
               href="/app/settings"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-amber-300/60 bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700 transition hover:bg-amber-100 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-300 dark:hover:bg-amber-950/50"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-950/30 px-3 py-1.5 text-xs font-medium text-amber-400 transition hover:bg-amber-950/50"
               title="Encryption is off — enable the passcode lock in Settings"
             >
               <LockKeyhole className="size-3.5" />
@@ -103,20 +103,20 @@ export function AppHeader() {
           onClick={() => setOpen((v) => !v)}
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
-          className="rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 sm:hidden dark:text-slate-300 dark:hover:bg-slate-800"
+          className="rounded-lg p-2 text-zinc-400 transition hover:bg-zinc-900 hover:text-white sm:hidden"
         >
           {open ? closeIcon : menuIcon}
         </button>
       </div>
 
       {open && (
-        <div className="flex flex-col gap-1 border-t border-slate-200 px-4 py-2 sm:hidden dark:border-slate-800">
+        <div className="flex flex-col gap-1 border-t border-white/10 bg-zinc-950 px-4 py-2 sm:hidden">
           {NAV.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               onClick={() => setOpen(false)}
-              className="rounded-lg px-3 py-2.5 text-sm text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+              className="rounded-lg px-3 py-2.5 text-sm text-zinc-400 transition hover:bg-zinc-900 hover:text-white"
             >
               {item.label}
             </Link>
@@ -128,7 +128,7 @@ export function AppHeader() {
                 setOpen(false);
                 void onLock();
               }}
-              className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+              className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-zinc-400 transition hover:bg-zinc-900 hover:text-white"
             >
               <Lock className="size-4" />
               {locking ? "Locking…" : "Lock now"}
@@ -138,7 +138,7 @@ export function AppHeader() {
             <Link
               href="/app/settings"
               onClick={() => setOpen(false)}
-              className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-amber-700 dark:text-amber-300"
+              className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-amber-400"
             >
               <LockKeyhole className="size-4" />
               Encryption off — enable passcode
@@ -151,7 +151,7 @@ export function AppHeader() {
                 void installNow();
                 setOpen(false);
               }}
-              className="rounded-lg px-3 py-2.5 text-left text-sm font-medium text-brand transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+              className="rounded-lg px-3 py-2.5 text-left text-sm font-medium text-teal-400 transition hover:bg-zinc-900"
             >
               Install app
             </button>

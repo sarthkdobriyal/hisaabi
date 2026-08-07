@@ -3,37 +3,24 @@ import Link from "next/link";
 
 export function MarketingHeader() {
   return (
-    <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-5">
-      <Link href="/" className="flex items-center gap-2">
-        <Image src="/hisaabi-icon.svg" alt="Hisaabi" width={32} height={32} className="rounded-lg" />
-        <span className="text-lg font-bold tracking-tight">Hisaabi</span>
-      </Link>
-      <nav className="flex items-center gap-1 sm:gap-2">
-        <Link
-          href="/features"
-          className="hidden rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition hover:bg-brand/5 hover:text-foreground sm:inline-block"
-        >
-          Features
+    <header className="fixed top-6 inset-x-0 z-50 flex justify-center px-4">
+      <div className="flex items-center justify-between w-full max-w-5xl bg-black/60 backdrop-blur-xl border border-white/10 rounded-full px-6 py-3 shadow-2xl">
+        <Link href="/" className="flex items-center gap-2">
+          <Image src="/hisaabi-icon.svg" alt="Hisaabi" width={32} height={32} className="rounded-lg" />
+          <span className="text-lg font-bold tracking-tighter text-white">Hisaabi</span>
         </Link>
-        <Link
-          href="/pricing"
-          className="hidden rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition hover:bg-brand/5 hover:text-foreground sm:inline-block"
-        >
-          Pricing
+        <nav className="hidden md:flex items-center gap-8">
+          <Link href="/features" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">Features</Link>
+          <Link href="/pricing" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">Pricing</Link>
+          <Link href="/blog" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">Blog</Link>
+        </nav>
+        <Link href="/app" className="relative group">
+          <span className="absolute -inset-[1px] bg-teal-500/50 rounded-full opacity-0 group-hover:opacity-100 transition blur-sm" />
+          <span className="relative bg-teal-600 hover:bg-teal-500 text-white px-5 py-2 rounded-full text-sm font-semibold transition-all inline-block">
+            Open app
+          </span>
         </Link>
-        <Link
-          href="/blog"
-          className="hidden rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition hover:bg-brand/5 hover:text-foreground sm:inline-block"
-        >
-          Blog
-        </Link>
-        <Link
-          href="/app"
-          className="rounded-lg px-4 py-2 text-sm font-semibold text-brand-600 transition hover:bg-brand/5"
-        >
-          Open app
-        </Link>
-      </nav>
+      </div>
     </header>
   );
 }

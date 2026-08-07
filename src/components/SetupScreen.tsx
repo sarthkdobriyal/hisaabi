@@ -53,7 +53,7 @@ export default function SetupScreen() {
   }, [profile]);
 
   if (!settings) {
-    return <div className="py-16 text-center text-sm text-slate-500">Loading…</div>;
+    return <div className="py-16 text-center text-sm text-zinc-500">Loading…</div>;
   }
 
   const meta = providerMeta(provider);
@@ -105,19 +105,19 @@ export default function SetupScreen() {
       <DataResidencyBadge />
       <div className="mx-auto flex w-full max-w-lg flex-1 flex-col justify-center gap-6 py-4">
         <div className="text-center">
-          <h1 className="text-2xl font-bold tracking-tight">Connect your AI</h1>
-          <p className="mt-2 text-sm text-slate-500">
+          <h1 className="text-2xl font-bold tracking-tight text-white">Connect your AI</h1>
+          <p className="mt-2 text-sm text-zinc-500">
             Hisaabi chats to a model you choose, with your own key. Your data never leaves this browser.
           </p>
         </div>
 
-        <div className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-background p-6 shadow-sm dark:border-slate-800">
+        <div className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-zinc-900 p-6 shadow-sm">
           <label className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium">AI provider</span>
+            <span className="text-sm font-medium text-zinc-300">AI provider</span>
             <select
               value={provider}
               onChange={(e) => setProvider(e.target.value as Provider)}
-              className="rounded-lg border border-slate-300 bg-background px-3.5 py-2.5 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 dark:border-slate-700"
+              className="rounded-lg border border-white/10 bg-zinc-950 px-3.5 py-2.5 text-sm text-white outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
             >
               {CONFIGURABLE.map((id) => (
                 <option key={id} value={id}>
@@ -128,14 +128,14 @@ export default function SetupScreen() {
           </label>
 
           {isAnthropic && (
-            <p className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300">
+            <p className="rounded-lg border border-amber-500/30 bg-amber-950/30 px-3 py-2 text-xs text-amber-300">
               You had Anthropic selected — its chat adapter isn&apos;t wired yet. Pick one below.
             </p>
           )}
 
           {needsKey && (
             <label className="flex flex-col gap-1.5">
-              <span className="flex items-center justify-between text-sm font-medium">
+              <span className="flex items-center justify-between text-sm font-medium text-zinc-300">
                 API key
                 {meta.keyUrl && (
                   <a
@@ -153,14 +153,14 @@ export default function SetupScreen() {
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
                 placeholder={meta.keyHint}
-                className="rounded-lg border border-slate-300 bg-background px-3.5 py-2.5 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 dark:border-slate-700"
+                className="rounded-lg border border-white/10 bg-zinc-950 px-3.5 py-2.5 text-sm text-white outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
               />
             </label>
           )}
 
           {usesBaseUrl && (
             <label className="flex flex-col gap-1.5">
-              <span className="text-sm font-medium">
+              <span className="text-sm font-medium text-zinc-300">
                 Base URL{provider === "openai" ? " (optional)" : ""}
               </span>
               <input
@@ -168,9 +168,9 @@ export default function SetupScreen() {
                 value={baseUrl}
                 onChange={(e) => setBaseUrl(e.target.value)}
                 placeholder="https://api.openai.com/v1"
-                className="rounded-lg border border-slate-300 bg-background px-3.5 py-2.5 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 dark:border-slate-700"
+                className="rounded-lg border border-white/10 bg-zinc-950 px-3.5 py-2.5 text-sm text-white outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
               />
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-zinc-500">
                 {provider === "custom"
                   ? "Any OpenAI-compatible endpoint. API key is optional."
                   : "For a proxy or gateway — OpenRouter, a local omniroute, etc."}
@@ -179,36 +179,36 @@ export default function SetupScreen() {
           )}
 
           {provider === "ollama" && (
-            <p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
+            <p className="rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-xs text-zinc-400">
               Fully offline. Requires Ollama running locally (default{" "}
               <span className="font-mono">http://localhost:11434</span>). No key, nothing leaves your machine.
             </p>
           )}
 
-          <div className="rounded-xl border border-dashed border-slate-300 p-4 dark:border-slate-700">
+          <div className="rounded-xl border border-white/10 p-4">
             <p className="text-sm font-medium">Starting balances</p>
-            <p className="mt-0.5 text-xs text-slate-500">
+            <p className="mt-0.5 text-xs text-zinc-500">
               How much money do you have right now? Skip for now and set it on the dashboard later — expenses default to the bank account unless you say cash.
             </p>
             <div className="mt-3 grid grid-cols-2 gap-3">
               <label className="flex flex-col gap-1">
-                <span className="text-xs text-slate-500">Cash</span>
+                <span className="text-xs text-zinc-500">Cash</span>
                 <input
                   type="number"
                   inputMode="decimal"
                   value={cash}
                   onChange={(e) => setCash(e.target.value)}
-                  className="rounded-lg border border-slate-300 bg-background px-3 py-2 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 dark:border-slate-700"
+                  className="rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-white outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
                 />
               </label>
               <label className="flex flex-col gap-1">
-                <span className="text-xs text-slate-500">Bank</span>
+                <span className="text-xs text-zinc-500">Bank</span>
                 <input
                   type="number"
                   inputMode="decimal"
                   value={bank}
                   onChange={(e) => setBank(e.target.value)}
-                  className="rounded-lg border border-slate-300 bg-background px-3 py-2 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 dark:border-slate-700"
+                  className="rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-white outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
                 />
               </label>
             </div>
@@ -218,7 +218,7 @@ export default function SetupScreen() {
             <button
               onClick={onTest}
               disabled={!saveable || testing}
-              className="rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:opacity-40 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+              className="rounded-lg border border-white/10 px-4 py-2.5 text-sm font-semibold text-zinc-300 transition hover:bg-zinc-800 disabled:opacity-40"
             >
               {testing ? "Testing…" : "Test connection"}
             </button>
@@ -232,13 +232,13 @@ export default function SetupScreen() {
           </div>
 
           {testResult && (
-            <p className={`text-xs ${testResult.ok ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
+            <p className={`text-xs ${testResult.ok ? "text-green-400" : "text-red-400"}`}>
               {testResult.message}
             </p>
           )}
         </div>
 
-        <p className="text-center text-xs text-slate-500">
+        <p className="text-center text-xs text-zinc-500">
           Change your provider, key, or add your salary anytime in Settings. All data is stored only in this browser.
         </p>
       </div>

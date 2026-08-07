@@ -17,7 +17,7 @@ export function DataResidencyBadge() {
   const total = counts ? counts.expenses + counts.income + counts.memories : 0;
 
   return (
-    <div className="rounded-lg border border-brand/30 bg-brand/5 px-3 py-2 text-xs text-slate-600 dark:text-slate-300">
+    <div className="rounded-lg border border-brand/30 bg-brand/5 px-3 py-2 text-xs text-zinc-400">
       <span className="font-semibold text-brand">Your data lives here</span> — in this browser (IndexedDB).{" "}
       {counts ? (
         <>

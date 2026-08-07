@@ -21,7 +21,7 @@ export function Composer({
   }
 
   return (
-    <div className="sticky bottom-0 z-20 border-t border-border bg-background/90 pb-3 pt-2.5 backdrop-blur">
+    <div className="sticky bottom-0 z-20 border-t border-white/10 bg-black/90 pb-3 pt-2.5 backdrop-blur">
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -41,7 +41,7 @@ export function Composer({
           rows={1}
           placeholder="spent 200 on coffee…"
           aria-label="Message"
-          className="min-h-11 max-h-40 flex-1 rounded-2xl bg-background px-4 py-3 text-sm leading-relaxed shadow-sm"
+          className="min-h-11 max-h-40 flex-1 rounded-2xl bg-zinc-900 border-white/10 text-white placeholder:text-zinc-600 px-4 py-3 text-sm leading-relaxed shadow-sm"
         />
         <Button
           type="submit"
@@ -53,7 +53,7 @@ export function Composer({
           <ArrowUp />
         </Button>
       </form>
-      <p className="mt-1.5 text-center text-[11px] text-muted-foreground">
+      <p className="mt-1.5 text-center text-[11px] text-zinc-600">
         Enter to send · Shift+Enter for a new line
       </p>
     </div>

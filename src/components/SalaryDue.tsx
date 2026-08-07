@@ -33,22 +33,22 @@ export default function SalaryDue({ salary, currency }: { salary: number; curren
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-sm rounded-2xl border border-brand/30 bg-background px-4 py-4 text-sm shadow-2xl">
+      <div className="w-full max-w-sm rounded-2xl border border-brand/30 bg-zinc-900 px-4 py-4 text-sm shadow-2xl">
         <p className="font-medium text-brand">Salary due — has it been credited?</p>
-        <p className="mt-1 text-xs text-slate-500">Confirm only after the money reaches your bank account.</p>
+        <p className="mt-1 text-xs text-zinc-500">Confirm only after the money reaches your bank account.</p>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <input
             type="number"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="w-32 rounded-lg border border-slate-300 bg-background px-3 py-1.5 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 dark:border-slate-700"
+            className="w-32 rounded-lg border border-white/10 bg-zinc-950 px-3 py-1.5 text-sm text-white outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
           />
-          <span className="text-slate-500">{currency}</span>
+          <span className="text-zinc-500">{currency}</span>
           <button
             type="button"
             disabled={busy}
             onClick={confirm}
-            className="rounded-lg border border-brand bg-white px-3 py-1 text-xs font-semibold text-brand transition hover:bg-brand hover:text-white disabled:opacity-40 dark:border-brand/60 dark:bg-slate-900 dark:hover:bg-brand"
+            className="rounded-lg border border-teal-500 bg-zinc-900 px-3 py-1 text-xs font-semibold text-teal-400 transition hover:bg-teal-600 hover:text-white disabled:opacity-40"
           >
             {busy ? "Crediting…" : "Yes, credited"}
           </button>
@@ -58,7 +58,7 @@ export default function SalaryDue({ salary, currency }: { salary: number; curren
               sessionStorage.setItem(DISMISS_KEY, todayISO());
               setDismissed(true);
             }}
-            className="text-xs text-slate-500 underline underline-offset-2 transition hover:text-slate-700 dark:hover:text-slate-300"
+            className="text-xs text-zinc-500 underline underline-offset-2 transition hover:text-zinc-300"
           >
             Not yet
           </button>

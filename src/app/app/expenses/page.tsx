@@ -13,8 +13,8 @@ type Row = { type: "expense"; item: Expense } | { type: "income"; item: Income }
 
 interface EditForm {
   amount: string;
-  category: string; // expense only
-  source: string; // income only
+  category: string;
+  source: string;
   note: string;
   date: string;
 }
@@ -57,7 +57,7 @@ export default function ExpensesPage() {
     return { expenses, income, profile };
   }, [month]);
 
-  if (!data) return <div className="py-16 text-center text-sm text-slate-500">Loading…</div>;
+  if (!data) return <div className="py-16 text-center text-sm text-zinc-500">Loading…</div>;
 
   const { expenses, income, profile } = data;
   const money = new Intl.NumberFormat("en-IN", {
@@ -148,8 +148,8 @@ export default function ExpensesPage() {
     <div className="flex flex-1 flex-col gap-6">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-bold tracking-tight">Expenses</h1>
-          <p className="text-sm text-slate-500">Review and remove what&apos;s been logged.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-white">Expenses</h1>
+          <p className="text-sm text-zinc-500">Review and remove what&apos;s been logged.</p>
         </div>
         <div className="flex items-center gap-1">
           <button onClick={changeMonth(prevMonth)} aria-label="Previous month" className={navCls}>
@@ -163,7 +163,7 @@ export default function ExpensesPage() {
       </header>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-zinc-500">
           {rows.length} {rows.length === 1 ? "entry" : "entries"} · spent {money.format(spent)}
           {earned > 0 ? ` · earned ${money.format(earned)}` : ""}
         </p>
@@ -171,7 +171,7 @@ export default function ExpensesPage() {
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="rounded-lg border border-slate-200 bg-background px-2.5 py-1.5 text-sm dark:border-slate-800"
+            className="rounded-lg border border-white/10 bg-zinc-900 px-2.5 py-1.5 text-sm text-white"
           >
             <option value="all">All categories</option>
             {cats.map((c) => (
@@ -184,7 +184,7 @@ export default function ExpensesPage() {
       </div>
 
       {rows.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-slate-300 p-10 text-center text-sm text-slate-500 dark:border-slate-700">
+        <p className="rounded-2xl border border-dashed border-white/10 p-10 text-center text-sm text-zinc-500">
           {category === "all"
             ? "Nothing logged this month yet. Log an expense in chat."
             : "No expenses in this category this month."}
@@ -193,7 +193,7 @@ export default function ExpensesPage() {
         <div className="flex flex-col gap-5">
           {[...byDate.entries()].map(([date, dayRows]) => (
             <section key={date}>
-              <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+              <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500">
                 {new Date(`${date}T00:00:00`).toLocaleDateString("en-IN", {
                   weekday: "short",
                   day: "numeric",
@@ -223,8 +223,8 @@ export default function ExpensesPage() {
       )}
 
       {lastDeleted && (
-        <div className="sticky bottom-4 mt-auto flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-background px-4 py-3 shadow-lg dark:border-slate-800">
-          <p className="text-sm text-slate-600 dark:text-slate-300">
+        <div className="sticky bottom-4 mt-auto flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 shadow-lg">
+          <p className="text-sm text-zinc-400">
             Deleted{" "}
             <span className="font-medium">
               {lastDeleted.type === "expense" ? lastDeleted.item.category : "income"} {money.format(lastDeleted.item.amount)}
@@ -241,7 +241,7 @@ export default function ExpensesPage() {
 }
 
 const navCls =
-  "rounded-lg border border-slate-200 px-2.5 py-1.5 text-sm hover:bg-slate-100 disabled:opacity-40 dark:border-slate-800 dark:hover:bg-slate-800";
+  "rounded-lg border border-white/10 px-2.5 py-1.5 text-sm text-zinc-300 hover:bg-zinc-900 disabled:opacity-40";
 const btnCls =
   "rounded-lg bg-brand px-3 py-1.5 text-sm font-medium text-white hover:opacity-90";
 
@@ -257,7 +257,7 @@ function RowView({
   onDelete: (row: Row) => void;
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-slate-200 px-4 py-3 dark:border-slate-800">
+    <div className="flex items-center gap-3 rounded-xl border border-white/10 px-4 py-3">
       <button
         onClick={() => onEdit(row)}
         className="min-w-0 flex-1 text-left"
@@ -267,11 +267,11 @@ function RowView({
           {row.type === "expense" ? row.item.category : row.item.source}
         </p>
         {row.type === "expense" && row.item.note && (
-          <p className="truncate text-xs text-slate-500">{row.item.note}</p>
+          <p className="truncate text-xs text-zinc-500">{row.item.note}</p>
         )}
       </button>
       <span
-        className={`text-sm font-semibold ${row.type === "expense" ? "" : "text-green-600 dark:text-green-400"}`}
+        className={`text-sm font-semibold ${row.type === "expense" ? "" : "text-green-400"}`}
       >
         {row.type === "expense" ? "" : "+"}
         {money.format(row.item.amount)}
@@ -279,7 +279,7 @@ function RowView({
       <button
         onClick={() => onDelete(row)}
         aria-label={`Delete ${row.type === "expense" ? row.item.category : row.item.source}`}
-        className="rounded-md px-1.5 py-0.5 text-lg leading-none text-slate-400 transition hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950"
+        className="rounded-md px-1.5 py-0.5 text-lg leading-none text-zinc-500 transition hover:bg-red-950 hover:text-red-400"
       >
         ×
       </button>
@@ -303,9 +303,9 @@ function EditRow({
   onSave: () => void;
 }) {
   const fieldCls =
-    "rounded-lg border border-slate-300 bg-background px-2.5 py-1.5 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 dark:border-slate-700";
+    "rounded-lg border border-white/10 bg-zinc-950 px-2.5 py-1.5 text-sm text-white outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20";
   return (
-    <div className="flex flex-col gap-2 rounded-xl border border-brand/40 px-4 py-3">
+    <div className="flex flex-col gap-2 rounded-xl border border-teal-500/40 px-4 py-3">
       <div className="flex flex-wrap items-center gap-2">
         {row.type === "expense" ? (
           <select
@@ -351,9 +351,9 @@ function EditRow({
           className={fieldCls}
         />
       )}
-      {error && <p className="text-xs text-red-600 dark:text-red-400">{error}</p>}
+      {error && <p className="text-xs text-red-400">{error}</p>}
       <div className="flex justify-end gap-2">
-        <button onClick={onCancel} className="rounded-lg px-3 py-1.5 text-sm text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800">
+        <button onClick={onCancel} className="rounded-lg px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-900">
           Cancel
         </button>
         <button onClick={onSave} className={btnCls}>

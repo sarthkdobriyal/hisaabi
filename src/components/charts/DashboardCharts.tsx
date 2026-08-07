@@ -54,9 +54,9 @@ function donutData(byCategory: ChartData["byCategory"]) {
 
 const tooltipStyle = {
   borderRadius: 12,
-  border: "1px solid var(--border)",
-  background: "var(--card)",
-  color: "var(--card-foreground)",
+  border: "1px solid rgba(255,255,255,0.1)",
+  background: "#18181b",
+  color: "#e4e4e7",
   fontSize: 12,
 };
 
@@ -65,7 +65,7 @@ export default function DashboardCharts({ byDay, byCategory, incomeByDay, curren
   const fmt = (v: number | string) => money.format(Number(v));
   const trend = trendData(byDay, incomeByDay);
   const donut = donutData(byCategory);
-  const axis = { stroke: "var(--muted-foreground)", fontSize: 11 };
+  const axis = { stroke: "#71717a", fontSize: 11 };
 
   return (
     <div className="grid gap-6 lg:grid-cols-2">
@@ -79,7 +79,7 @@ export default function DashboardCharts({ byDay, byCategory, incomeByDay, curren
                   <stop offset="100%" stopColor="var(--chart-1)" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
               <XAxis dataKey="day" tickLine={false} axisLine={false} {...axis} />
               <YAxis tickLine={false} axisLine={false} width={40} {...axis} />
               <Tooltip contentStyle={tooltipStyle} formatter={(v) => [fmt(v as number), "Spent"]} />
@@ -123,7 +123,7 @@ export default function DashboardCharts({ byDay, byCategory, incomeByDay, curren
         {donut.length > 0 && (
           <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
             {donut.map((c, i) => (
-              <li key={c.category} className="flex items-center gap-1.5 text-muted-foreground">
+              <li key={c.category} className="flex items-center gap-1.5 text-zinc-500">
                 <span
                   className="size-2.5 rounded-full"
                   style={{ background: CHART_COLORS[i % CHART_COLORS.length] }}
@@ -139,7 +139,7 @@ export default function DashboardCharts({ byDay, byCategory, incomeByDay, curren
         {trend.length ? (
           <ResponsiveContainer width="100%" height={240}>
             <LineChart data={trend}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
               <XAxis dataKey="day" tickLine={false} axisLine={false} {...axis} />
               <YAxis tickLine={false} axisLine={false} width={40} {...axis} />
               <Tooltip
@@ -168,7 +168,7 @@ function ChartCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className={`rounded-2xl border border-border bg-card p-6 shadow-sm ${className ?? ""}`}>
+    <div className={`rounded-2xl border border-white/10 bg-zinc-900/50 p-6 shadow-sm ${className ?? ""}`}>
       <h2 className="mb-4 text-base font-semibold tracking-tight">{title}</h2>
       {children}
     </div>
@@ -177,7 +177,7 @@ function ChartCard({
 
 function ChartEmpty({ text }: { text: string }) {
   return (
-    <div className="flex h-[220px] items-center justify-center rounded-xl border border-dashed border-border text-center text-sm text-muted-foreground">
+    <div className="flex h-[220px] items-center justify-center rounded-xl border border-dashed border-white/10 text-center text-sm text-zinc-500">
       {text}
     </div>
   );

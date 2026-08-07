@@ -1,3 +1,72 @@
+# Theme
+
+## Part 1: Token Summary
+
+**Framework:** Tailwind CSS v4 with `@theme inline` (no `tailwind.config` file).
+Imports: `tailwindcss`, `tw-animate-css`, `shadcn/tailwind.css`.
+
+### Colors
+
+**Light (:root)**
+- `--brand`: `#0d9488` (teal-600)
+- `--brand-600`: `#059669` (emerald-600)
+- `--background`: `oklch(1 0 0)` (white)
+- `--foreground`: `oklch(0.145 0 0)` (near-black)
+- `--card` / `--popover`: white
+- `--primary`: `var(--brand)` / foreground: near-white
+- `--secondary` / `--muted` / `--accent`: `oklch(0.97 0 0)` (very light gray)
+- `--destructive`: `oklch(0.577 0.245 27.325)` (red)
+- `--border` / `--input`: `oklch(0.922 0 0)` (light gray)
+- `--ring`: `var(--brand)`
+
+**Dark (prefers-color-scheme: dark)**
+- `--background`: `oklch(0.145 0 0)` (near-black)
+- `--foreground`: `oklch(0.985 0 0)` (near-white)
+- `--card` / `--popover`: `oklch(0.205 0 0)` (dark gray)
+- `--secondary` / `--muted` / `--accent`: `oklch(0.269 0 0)`
+- `--destructive`: `oklch(0.704 0.191 22.216)`
+- `--border`: `oklch(1 0 0 / 10%)` / `--input`: `oklch(1 0 0 / 15%)`
+
+**Chart palette:**
+- `--chart-1`: `#0d9488` (brand teal)
+- `--chart-2`: `#2dd4bf` (teal-300)
+- `--chart-3`: `#f59e0b` (amber-500)
+- `--chart-4`: `#6366f1` (indigo-500)
+- `--chart-5`: `#ec4899` (pink-500)
+
+**Sidebar tokens:** separate set (sidebar, sidebar-foreground, sidebar-primary, etc.) — see full CSS.
+
+### Radius
+
+- Base `--radius`: `0.625rem` (10px)
+- Derived: `--radius-sm` (0.6x), `--radius-md` (0.8x), `--radius-lg` (1x), `--radius-xl` (1.4x), `--radius-2xl` (1.8x), `--radius-3xl` (2.2x), `--radius-4xl` (2.6x)
+
+### Fonts
+
+- `--font-sans`: `var(--font-geist-sans)` (Geist Sans, loaded via `next/font/google`)
+- `--font-mono`: `var(--font-geist-mono)` (Geist Mono)
+- `--font-heading`: `var(--font-geist-sans)` (same as sans)
+
+### Animations
+
+- `--animate-fade-up`: message entrance — opacity 0 + translateY(6px) -> 1 + 0 (0.2s ease-out)
+- `--animate-scale-in`: confirm-card pop — opacity 0 + scale(0.97) -> 1 + 1 (0.15s ease-out)
+- `--animate-pulse-dot`: typing indicator dots — opacity/translateY cycle (1.2s infinite)
+- `prefers-reduced-motion`: disables all animations
+
+### Utility classes
+
+- `.brand-gradient`: `linear-gradient(135deg, var(--brand), var(--brand-600))` — used on primary CTAs and user chat bubbles.
+
+### Dark mode
+
+OS-driven via `@custom-variant dark (@media (prefers-color-scheme: dark))` — no `.dark` class toggle.
+
+---
+
+## Part 2: Full Raw CSS
+
+```css
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -191,24 +260,4 @@ body {
     scroll-behavior: auto !important;
   }
 }
-
-.text-gradient {
-  background: linear-gradient(to bottom, #ffffff 0%, rgba(255, 255, 255, 0.4) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.dot-grid {
-  background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  background-size: 24px 24px;
-  mask-image: radial-gradient(ellipse at center, black, transparent 80%);
-}
-
-@keyframes border-spin {
-  100% { transform: rotate(360deg); }
-}
-
-.animate-border-spin {
-  animation: border-spin 2.5s linear infinite;
-}
+```

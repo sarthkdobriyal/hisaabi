@@ -20,7 +20,7 @@ export function ConfirmCard({ card, onUndo }: { card: ConfirmCardData; onUndo: (
     <div className="flex animate-scale-in items-center gap-3 rounded-xl border border-brand/30 bg-brand/5 px-4 py-3 text-sm">
       <CheckCircle2 className="size-4 shrink-0 text-brand" />
       <span className="font-medium text-brand">{label}</span>
-      <span className={card.undone ? "text-muted-foreground line-through" : "text-muted-foreground"}>
+      <span className={card.undone ? "text-zinc-400 line-through" : "text-zinc-400"}>
         {r.amount} · {r.category ?? r.source} · {r.date}
       </span>
       {canUndo && (
@@ -28,7 +28,7 @@ export function ConfirmCard({ card, onUndo }: { card: ConfirmCardData; onUndo: (
           Undo
         </Button>
       )}
-      {card.undone && <span className="ml-auto text-xs text-muted-foreground">Undone</span>}
+      {card.undone && <span className="ml-auto text-xs text-zinc-400">Undone</span>}
     </div>
   );
 }

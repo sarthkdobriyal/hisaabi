@@ -51,22 +51,22 @@ export default function RecurringBillDue({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-2xl border border-brand/30 bg-background px-4 py-4 text-sm shadow-2xl">
+        <div className="w-full max-w-md rounded-2xl border border-brand/30 bg-zinc-900 px-4 py-4 text-sm shadow-2xl">
         <p className="font-medium text-brand">Bills due — did they get deducted?</p>
-        <p className="mt-1 text-xs text-slate-500">Confirm only after the bill is actually debited from your bank.</p>
+        <p className="mt-1 text-xs text-zinc-500">Confirm only after the bill is actually debited from your bank.</p>
         <ul className="mt-3 space-y-2">
           {remaining.map((b) => (
-            <li key={b.name} className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-xl border border-slate-200 p-3 dark:border-slate-800">
+            <li key={b.name} className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-xl border border-white/10 p-3">
               <span className="flex-1">
                 {b.name}{" "}
-                <span className="text-slate-500">
+                <span className="text-zinc-500">
                   · {b.amount} {currency} · due {b.dayOfMonth}
                 </span>
               </span>
               <button
                 type="button"
                 onClick={() => markDeducted(b)}
-                className="rounded-lg border border-brand bg-white px-3 py-1 text-xs font-semibold text-brand transition hover:bg-brand hover:text-white dark:border-brand/60 dark:bg-slate-900 dark:hover:bg-brand"
+                className="rounded-lg border border-teal-500 bg-zinc-900 px-3 py-1 text-xs font-semibold text-teal-400 transition hover:bg-teal-600 hover:text-white"
               >
                 Yes, deducted
               </button>
@@ -76,7 +76,7 @@ export default function RecurringBillDue({
         <button
           type="button"
           onClick={dismissToday}
-          className="mt-3 text-xs text-slate-500 underline underline-offset-2 transition hover:text-slate-700 dark:hover:text-slate-300"
+          className="mt-3 text-xs text-zinc-500 underline underline-offset-2 transition hover:text-zinc-300"
         >
           Not yet — remind me later
         </button>

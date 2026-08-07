@@ -111,7 +111,7 @@ export default function SettingsPage() {
   }, []);
 
   if (!form || !profileForm) {
-    return <div className="py-16 text-center text-sm text-slate-500">Loading settings…</div>;
+    return <div className="py-16 text-center text-sm text-zinc-500">Loading settings…</div>;
   }
 
   const meta = providerMeta(form.provider);
@@ -223,8 +223,6 @@ export default function SettingsPage() {
     setCurrencyState(p.currency);
   }
 
-  // ---- encryption ----
-
   function encMessage(msg: string | null) {
     setEncError(msg);
     if (msg) setEncSuccess(null);
@@ -332,13 +330,12 @@ export default function SettingsPage() {
   return (
     <div className="flex flex-1 flex-col gap-6">
       <header className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="text-2xl font-bold tracking-tight text-white">Settings</h1>
+        <p className="text-sm text-zinc-500">
           Configure your AI provider, currency, and backups. Everything stays in this browser.
         </p>
       </header>
 
-      {/* AI provider */}
       <Section
         title="AI provider"
         subtitle="Your key is stored only in this browser and sent only to the provider you pick."
@@ -422,7 +419,7 @@ export default function SettingsPage() {
                     </a>
                   )}
                 </div>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-zinc-500">
                   Tip: create a scoped/limited key where your provider supports it.
                 </p>
                 {testResult && (
@@ -445,7 +442,7 @@ export default function SettingsPage() {
                     placeholder="https://api.openai.com/v1"
                     className={`${inputCls} font-mono`}
                   />
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-zinc-500">
                     {form.provider === "custom"
                       ? "Any OpenAI-compatible endpoint (OpenRouter, LiteLLM, a local server…). API key is optional. The endpoint must allow browser requests (CORS)."
                       : "Point at an OpenAI-compatible proxy or gateway (OpenRouter, LiteLLM, Omniroute, etc.) instead of OpenAI directly. Leave blank to use OpenAI."}
@@ -472,7 +469,7 @@ export default function SettingsPage() {
             </Field>
           )}
 
-          <div className="flex items-center gap-3 border-t border-slate-100 pt-5 dark:border-slate-800">
+          <div className="flex items-center gap-3 border-t border-white/10 pt-5">
             <button type="button" onClick={onSave} className={btnPrimary}>
               Save changes
             </button>
@@ -481,7 +478,6 @@ export default function SettingsPage() {
         </div>
       </Section>
 
-      {/* Profile & budget */}
       <Section title="Profile & budget" subtitle="Review what chat saved, then tune budgets for the dashboard and AI.">
         <div className="grid gap-6">
           <div className="grid gap-5 sm:grid-cols-3">
@@ -518,7 +514,7 @@ export default function SettingsPage() {
           </div>
 
           <div className="grid gap-3">
-            <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">Monthly category budgets</h3>
+            <h3 className="text-sm font-semibold text-zinc-300">Monthly category budgets</h3>
             <div className="grid gap-3 sm:grid-cols-2">
               {categories.map((category) => (
                 <Field key={category} label={category}>
@@ -536,7 +532,7 @@ export default function SettingsPage() {
           </div>
 
           <div className="grid gap-3">
-            <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">Custom categories</h3>
+            <h3 className="text-sm font-semibold text-zinc-300">Custom categories</h3>
             <div className="flex gap-2">
               <input
                 value={newCategory}
@@ -560,7 +556,7 @@ export default function SettingsPage() {
                         budgetGoals: profileForm.budgetGoals.filter((g) => g.category !== category),
                       })
                     }
-                    className="rounded-full border border-slate-300 px-3 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-900"
+                    className="rounded-full border border-white/10 px-3 py-1 text-xs font-medium text-zinc-400 hover:bg-zinc-900"
                   >
                     {category} ×
                   </button>
@@ -571,7 +567,7 @@ export default function SettingsPage() {
 
           <div className="grid gap-3">
             <div className="flex items-center justify-between gap-3">
-              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">Recurring bills</h3>
+              <h3 className="text-sm font-semibold text-zinc-300">Recurring bills</h3>
               <button
                 type="button"
                 onClick={() =>
@@ -584,7 +580,7 @@ export default function SettingsPage() {
             </div>
             <div className="grid gap-3">
               {profileForm.recurringBills.map((bill, i) => (
-                <div key={i} className="grid gap-3 rounded-xl border border-slate-200 p-3 dark:border-slate-800 sm:grid-cols-[1fr_8rem_7rem_auto]">
+                <div key={i} className="grid gap-3 rounded-xl border border-white/10 p-3 sm:grid-cols-[1fr_8rem_7rem_auto]">
                   <input
                     value={bill.name}
                     onChange={(e) => setBill(i, { name: e.target.value })}
@@ -620,14 +616,14 @@ export default function SettingsPage() {
                 </div>
               ))}
               {!profileForm.recurringBills.length && (
-                <p className="rounded-xl border border-dashed border-slate-300 p-4 text-center text-sm text-slate-500 dark:border-slate-700">
+                <p className="rounded-xl border border-dashed border-white/10 p-4 text-center text-sm text-zinc-500">
                   No recurring bills yet.
                 </p>
               )}
             </div>
           </div>
 
-          <div className="flex items-center gap-3 border-t border-slate-100 pt-5 dark:border-slate-800">
+          <div className="flex items-center gap-3 border-t border-white/10 pt-5">
             <button type="button" onClick={onSaveProfile} className={btnPrimary}>
               Save profile
             </button>
@@ -636,7 +632,6 @@ export default function SettingsPage() {
         </div>
       </Section>
 
-      {/* Security & encryption */}
       <Section
         title="Security & encryption"
         subtitle="Lock your data behind a passcode. While locked, it's AES-256 encrypted on this device."
@@ -644,15 +639,15 @@ export default function SettingsPage() {
         <div className="grid gap-5">
           {vaultStatus === "disabled" ? (
             <div className="grid gap-4">
-              <div className="flex flex-wrap items-center gap-3 rounded-xl bg-slate-50 px-4 py-3 text-sm dark:bg-slate-900/50">
-                <LockKeyhole className="size-4 text-slate-400" />
+              <div className="flex flex-wrap items-center gap-3 rounded-xl bg-zinc-800 px-4 py-3 text-sm text-zinc-300">
+                <LockKeyhole className="size-4 text-zinc-400" />
                 <span>
                   Encryption is <strong>off</strong>. Your data is stored on this device, but unencrypted.
                 </span>
               </div>
               {showEnableForm ? (
-                <div className="grid gap-3 rounded-xl border border-amber-200 bg-amber-50/50 p-4 dark:border-amber-900/60 dark:bg-amber-950/20">
-                  <p className="text-xs text-amber-800 dark:text-amber-200">
+                <div className="grid gap-3 rounded-xl border border-amber-500/30 bg-amber-950/20 p-4">
+                  <p className="text-xs text-amber-300">
                     <strong>Important:</strong> the passcode is never stored and can&apos;t be recovered. If you
                     forget it, your data stays permanently encrypted. Export a backup first. Enabling locks the app
                     immediately.
@@ -730,7 +725,7 @@ export default function SettingsPage() {
                 </button>
                 {confirmDisable ? (
                   <span className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm font-medium text-red-700 dark:text-red-400">
+                    <span className="text-sm font-medium text-red-400">
                       Turn off encryption? Data stays, unencrypted.
                     </span>
                     <button
@@ -753,7 +748,7 @@ export default function SettingsPage() {
               </div>
 
               {showChangeForm && (
-                <div className="grid gap-3 rounded-xl border border-slate-200 p-4 dark:border-slate-800">
+                <div className="grid gap-3 rounded-xl border border-white/10 p-4">
                   <div className="grid gap-3 sm:grid-cols-3">
                     <Field label="Current passcode">
                       <input
@@ -794,9 +789,9 @@ export default function SettingsPage() {
                 </div>
               )}
 
-              <div className="grid gap-3 rounded-xl border border-slate-200 p-4 dark:border-slate-800">
-                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">Encrypted backups</h3>
-                <p className="text-xs text-slate-500">
+              <div className="grid gap-3 rounded-xl border border-white/10 p-4">
+                <h3 className="text-sm font-semibold text-zinc-300">Encrypted backups</h3>
+                <p className="text-xs text-zinc-500">
                   Restore these with the same passcode — on any device or browser. Keep the passcode and file together.
                 </p>
                 <div className="grid gap-3 sm:grid-cols-2">
@@ -852,16 +847,15 @@ export default function SettingsPage() {
         </div>
       </Section>
 
-      {/* Storage & backup */}
       <Section
         title="Storage & backup"
         subtitle="Everything lives in this browser. Keep backups — clearing browser data erases it."
       >
         <div className="grid gap-5">
-          <div className="flex flex-wrap items-center gap-3 rounded-xl bg-slate-50 px-4 py-3 text-sm dark:bg-slate-900/50">
+          <div className="flex flex-wrap items-center gap-3 rounded-xl bg-zinc-800 px-4 py-3 text-sm text-zinc-300">
             <span>
               Persistent storage:{" "}
-              <strong className={persisted ? "text-brand-600" : "text-amber-600"}>
+              <strong className={persisted ? "text-brand-600" : "text-amber-400"}>
                 {persisted === null ? "unknown" : persisted ? "on" : "off"}
               </strong>
             </span>
@@ -892,15 +886,14 @@ export default function SettingsPage() {
               />
             </label>
           </div>
-          <p className="text-xs text-slate-500">JSON exports never include your API key.</p>
+          <p className="text-xs text-zinc-500">JSON exports never include your API key.</p>
         </div>
       </Section>
 
-      {/* Danger zone */}
       <Section title="Danger zone" subtitle="Irreversible actions. Export a backup first." tone="danger">
         {confirmWipe ? (
           <div className="flex flex-wrap items-center gap-3">
-            <span className="text-sm font-medium text-red-700 dark:text-red-400">
+            <span className="text-sm font-medium text-red-400">
               Delete all local data? This cannot be undone.
             </span>
             <button type="button" onClick={onWipe} disabled={busy === "wipe"} className={btnDanger}>
@@ -925,13 +918,13 @@ function today() {
 }
 
 const inputCls =
-  "w-full rounded-lg border border-slate-300 bg-background px-3.5 py-2.5 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 disabled:opacity-40 dark:border-slate-700";
+  "w-full rounded-lg border border-white/10 bg-zinc-950 px-3.5 py-2.5 text-sm text-white outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 disabled:opacity-40";
 const btnPrimary =
-  "inline-flex items-center justify-center brand-gradient rounded-lg px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-40";
+  "inline-flex items-center justify-center brand-gradient rounded-lg px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-black disabled:opacity-40";
 const btnGhost =
-  "inline-flex items-center justify-center rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm font-medium transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-40 dark:border-slate-700 dark:hover:bg-slate-900";
+  "inline-flex items-center justify-center rounded-lg border border-white/10 px-3.5 py-2.5 text-sm font-medium text-zinc-300 transition hover:bg-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 focus-visible:ring-offset-black disabled:opacity-40";
 const btnDanger =
-  "inline-flex items-center justify-center rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-40";
+  "inline-flex items-center justify-center rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2 focus-visible:ring-offset-black disabled:opacity-40";
 
 function Field({
   label,
@@ -944,7 +937,7 @@ function Field({
 }) {
   return (
     <label className={`grid gap-1.5 ${className ?? ""}`}>
-      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{label}</span>
+      <span className="text-sm font-medium text-zinc-300">{label}</span>
       {children}
     </label>
   );
@@ -965,12 +958,12 @@ function Section({
     <section
       className={`rounded-2xl border p-6 shadow-sm ${
         tone === "danger"
-          ? "border-red-200 bg-red-50/40 dark:border-red-900/60 dark:bg-red-950/20"
-          : "border-slate-200 bg-background dark:border-slate-800"
+          ? "border-red-500/30 bg-red-950/20"
+          : "border-white/10 bg-zinc-900/50"
       }`}
     >
-      <h2 className="text-base font-semibold tracking-tight">{title}</h2>
-      {subtitle && <p className="mt-1 text-sm text-slate-500">{subtitle}</p>}
+      <h2 className="text-base font-semibold tracking-tight text-white">{title}</h2>
+      {subtitle && <p className="mt-1 text-sm text-zinc-500">{subtitle}</p>}
       <div className="mt-5">{children}</div>
     </section>
   );

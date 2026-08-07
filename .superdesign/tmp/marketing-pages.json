@@ -1,0 +1,22 @@
+[
+  {
+    "title": "Features Index",
+    "prompt": "Features index page in Teal Noir style. Dark background with teal-tinted top gradient and dot grid and teal glow blob. Same floating glass pill navbar. Hero centered with Features pill badge and large heading Expense tracking that feels like texting in gradient text and subtitle. Below: 12 feature cards in 3-column grid. Each card has dark bg zinc-900/50 and white/10 border and icon in colored square and feature name and tagline and Learn more link in teal. Cards have hover glow effect. How it works section with 3 numbered steps using brand-gradient circles. Bottom CTA: Private by architecture with description and teal CTA button. Same cinematic footer with HISAABI watermark. All links are real hrefs to /features/slug and /app and /privacy and /blog. Use ONLY Geist Sans and teal/emerald brand colors. Do not introduce any fonts or colors or visual styles not in the design system."
+  },
+  {
+    "title": "Feature Detail Page",
+    "prompt": "Individual feature detail page template in Teal Noir style. Dark background. Same floating glass pill navbar. Breadcrumb nav Home / Features / Feature Name in zinc-500 text. Feature pill badge. Large h1 in gradient text. Tagline in zinc-400. Try it free CTA with brand-gradient rounded-full. Article sections with h2 headings and body paragraphs in zinc-400. Screenshot mockup placeholder area using same browser frame with teal border glow as homepage. FAQ accordion with dark cards using bg-zinc-900/50 and border-white/10 and rounded-2xl. Related features grid with 2 columns using dark cards with hover teal border. Bottom CTA card with teal border and Private local and free heading. Same footer. Use ONLY Geist Sans and teal/emerald. Do not introduce any fonts or colors or visual styles not in the design system."
+  },
+  {
+    "title": "Pricing Page",
+    "prompt": "Pricing page in Teal Noir style. Dark background. Same floating nav. Pricing pill badge. Large heading Free forever. Your data is not the price. in gradient text. Subtitle in zinc-400. Single centered pricing card with teal border glow and brand-gradient top accent line. THE ONLY PLAN label in mono. Giant zero dollar price. Feature checklist with teal check icons. Brand-gradient CTA button. Below: comparison table How free finance apps actually charge you. Dark table with zinc-900 header and rows comparing Hisaabi vs cloud trackers using teal checks for Hisaabi and red X for competitors. Bottom CTA section. Same footer. Use ONLY Geist Sans and teal/emerald. Do not introduce any fonts or colors or visual styles not in the design system."
+  },
+  {
+    "title": "About Page",
+    "prompt": "About page in Teal Noir style. Dark background. Same floating nav. About pill badge. Large heading Built to get your money out of the cloud in gradient text. Story paragraphs in zinc-400 with leading-relaxed. What we believe section: 3 pillar cards in dark style with bg-zinc-900/50 and border-white/10. Each card has icon in teal colored square and title and description. What we do not do bullet list with zinc-400 text. Open source section with GitHub link in teal. Bottom CTA card with teal border. Same footer. Use ONLY Geist Sans and teal/emerald. Do not introduce any fonts or colors or visual styles not in the design system."
+  },
+  {
+    "title": "Blog Index Page",
+    "prompt": "Blog index page in Teal Noir style. Dark background. Same floating nav. Blog pill badge. Large heading From the Hisaabi blog in gradient text. Category filter tabs as rounded-full pills with teal active state for All and AI and Privacy and Money and Product and Open Source. Blog cards in masonry-like 3-column grid: each card is dark bg-zinc-900/50 with border-white/10 and cover image placeholder area and category accent color chip and title in white and excerpt in zinc-400 and author initials avatar and read time. Cards hover border-teal-500/50. Load more button at bottom. Same footer. Use ONLY Geist Sans and teal/emerald. Do not introduce any fonts or colors or visual styles not in the design system."
+  }
+]
